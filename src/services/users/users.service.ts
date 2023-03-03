@@ -18,7 +18,7 @@ export class UsersService {
     @InjectRepository(RefreshTokensEntity)
     private refreshTokens: Repository<RefreshTokensEntity>,
   ) {}
-  async register(dto: RegisterUserDto) {
+  async register(dto: RegisterUserDto): Promise<UsersEntity> {
     try {
       const user = new UsersEntity();
 
@@ -42,7 +42,7 @@ export class UsersService {
       );
     }
   }
-  async getUserById(id: string) {
+  async getUserById(id: string): Promise<UsersEntity> {
     const user = await this.users.findOne({
       where: {
         id,
@@ -78,7 +78,10 @@ export class UsersService {
     return undefined;
   }
 
-  async getUserIfRefreshTokenMatches(refreshToken: string, userId: string) {
+  async getUserIfRefreshTokenMatches(
+    refreshToken: string,
+    userId: string,
+  ): Promise<UsersEntity> {
     try {
       const user = await this.getUserById(userId);
       const token = await this.refreshTokens.findOne({

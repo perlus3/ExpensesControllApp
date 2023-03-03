@@ -36,7 +36,7 @@ export class AuthService {
       'RefreshToken=; HttpOnly; Path=/; Max-Age=0',
     ];
   }
-  async removeRefreshTokenFromDb(userId: string) {
+  async removeRefreshTokenFromDb(userId: string): Promise<void> {
     const tokenInDb = await this.getRefreshTokenFromDb(userId);
     await this.refreshTokens.remove(tokenInDb);
   }
@@ -96,7 +96,9 @@ export class AuthService {
       expiresIn,
     });
   }
-  async createAccessTokenFromRefreshToken(refreshToken: string) {
+  async createAccessTokenFromRefreshToken(
+    refreshToken: string,
+  ): Promise<string> {
     try {
       const decodedToken = this.jwtService.verify(refreshToken);
 
@@ -118,7 +120,10 @@ export class AuthService {
       throw new BadRequestException('Coś poszło nie tak, zaloguj się ponownie');
     }
   }
-  async saveRefreshTokenIntoDb(userId: string, refreshToken: string) {
+  async saveRefreshTokenIntoDb(
+    userId: string,
+    refreshToken: string,
+  ): Promise<void> {
     const decode = this.jwtService.verify(refreshToken);
     const safeToken = await hashMethod(refreshToken);
 
@@ -130,7 +135,7 @@ export class AuthService {
       expiresIn,
     });
   }
-  getRefreshTokenFromDb(userId: string) {
+  async getRefreshTokenFromDb(userId: string): Promise<RefreshTokensEntity> {
     return this.refreshTokens.findOne({
       where: {
         user: {
@@ -141,7 +146,7 @@ export class AuthService {
       relations: ['user'],
     });
   }
-  async checkTokenExpTime(userId: string) {
+  async checkTokenExpTime(userId: string): Promise<void> {
     const token = await this.getRefreshTokenFromDb(userId);
 
     const today = dayjs().toDate();
