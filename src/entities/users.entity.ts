@@ -1,30 +1,53 @@
-import {Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+import { AccountsEntity } from './accounts.entity';
 
 @Entity()
 export class UsersEntity {
-    @PrimaryGeneratedColumn('uuid')
-    id: string;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
-    @Column({ unique: true })
-    login: string;
+  @Column({ unique: true })
+  login: string;
 
-    @Column({ unique: true })
-    email: string;
+  @Column({ unique: true })
+  email: string;
 
-    @Column({ default: false })
-    isEmailConfirmed: boolean;
+  @Column({ default: false })
+  isEmailConfirmed: boolean;
 
-    @Column()
-    firstName: string;
+  @Column()
+  firstName: string;
 
-    @Column()
-    lastName: string;
+  @Column()
+  lastName: string;
 
-    @Column()
-    accounts: string;
+  @Column({ default: true })
+  isActive: boolean;
 
-    @Column({
-        select: false,
-    })
-    password?: string;
+  @OneToMany(() => AccountsEntity, (account) => account.user)
+  accounts: AccountsEntity[];
+
+  @Column({
+    select: false,
+  })
+  password?: string;
+
+  @CreateDateColumn()
+  created: Date;
+
+  @UpdateDateColumn()
+  updated: Date;
+
+  getUser(): UsersEntity {
+    const { password, ...user } = this;
+
+    return user as Omit<UsersEntity, 'password' | 'getUser()'>;
+  }
 }
