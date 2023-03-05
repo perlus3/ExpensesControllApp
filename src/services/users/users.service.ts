@@ -71,7 +71,6 @@ export class UsersService {
     if (!user?.isActive || !user?.password) {
       return undefined;
     }
-
     if (await compareMethod(password, user.password)) {
       return user.getUser();
     }
@@ -93,6 +92,7 @@ export class UsersService {
         },
         relations: ['user'],
       });
+
       const isTokenMatching = await compareMethod(
         refreshToken,
         token.refreshToken,
