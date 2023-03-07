@@ -3,15 +3,13 @@ import { config } from './config';
 import { DataSource } from 'typeorm';
 import { UsersEntity } from '../entities/users.entity';
 import { AccountsEntity } from '../entities/accounts.entity';
-import { IncomeEntity } from '../entities/income.entity';
-import { ExpensesEntity } from '../entities/expenses.entity';
+import { CashFlowEntity } from '../entities/cash-flow.entity';
 import { RefreshTokensEntity } from '../entities/refresh-tokens.entity';
 
 const entities = [
   UsersEntity,
   AccountsEntity,
-  IncomeEntity,
-  ExpensesEntity,
+  CashFlowEntity,
   RefreshTokensEntity,
 ];
 

@@ -43,6 +43,6 @@ export class AccountsController {
     @Body() body: CreateNewAccountDto,
     @Req() req: RequestWithUser,
   ) {
-    return await this.accountsService.createNewAccount(body, req.user.id);
+    return this.accountsService.createNewAccount(body, req.user.id);
   }
 }

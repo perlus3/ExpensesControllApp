@@ -19,13 +19,14 @@ export class AccountsService {
     accountData: CreateNewAccountDto,
     userId: string,
   ): Promise<AccountsEntity> {
-    const newAccount = this.accountsEntity.create(accountData);
+    const newAccount = await this.accountsEntity.create(accountData);
 
     return this.accountsEntity.save({
       ...newAccount,
       user: {
         id: userId,
       },
+      relations: ['user'],
     });
   }
 
@@ -49,14 +50,11 @@ export class AccountsService {
   }
 
   async findAllByUserId(userId: string): Promise<AccountsEntity[]> {
-    return this.accountsEntity.find({
-      where: {
-        user: {
-          id: userId,
-        },
-      },
-      relations: ['user'],
-    });
+    return this.accountsEntity
+      .createQueryBuilder('accounts')
+      .leftJoinAndSelect('accounts.user', 'user')
+      .where('user.id = :id', { id: userId })
+      .getMany();
   }
   async getAccountValue(id: string, userId: string): Promise<number> {
     const account = await this.findOneAccountById(id, userId);

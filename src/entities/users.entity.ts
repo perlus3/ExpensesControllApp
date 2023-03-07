@@ -2,9 +2,11 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { AccountsEntity } from './accounts.entity';
 
 @Entity()
 export class UsersEntity {
@@ -25,6 +27,9 @@ export class UsersEntity {
 
   @Column()
   lastName: string;
+
+  @OneToMany(() => AccountsEntity, (accounts) => accounts.user)
+  accounts: AccountsEntity[];
 
   @Column({ default: true })
   isActive: boolean;
