@@ -2,7 +2,6 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -22,8 +21,7 @@ export class AccountsEntity {
   @Column()
   name: string;
 
-  @ManyToOne(() => UsersEntity, { eager: true })
-  @JoinColumn({ name: 'userId' })
+  @ManyToOne(() => UsersEntity, (user) => user.id)
   user: UsersEntity;
 
   @Column()

@@ -37,7 +37,7 @@ export class AuthController {
    */
   @Get('me')
   async getMyProfile(@Req() req: RequestWithUser) {
-    return this.accountsService.findAllByUserId(req.user.id);
+    return this.usersService.getUserById(req.user.id);
   }
 
   @Public()
