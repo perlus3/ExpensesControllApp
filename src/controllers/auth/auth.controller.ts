@@ -20,12 +20,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { RefreshTokensEntity } from '../../entities/refresh-tokens.entity';
 import { Repository } from 'typeorm';
 import JwtRefreshGuard from '../../helpers/auth/jwt.refreshGuard';
+import { AccountsService } from '../../accountsModule/accounts/accounts.service';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     @InjectRepository(RefreshTokensEntity)
     private refreshTokens: Repository<RefreshTokensEntity>,
+    private accountsService: AccountsService,
     private usersService: UsersService,
     private authService: AuthService,
   ) {}
@@ -35,7 +37,7 @@ export class AuthController {
    */
   @Get('me')
   async getMyProfile(@Req() req: RequestWithUser) {
-    return req.user;
+    return this.usersService.getUserById(req.user.id);
   }
 
   @Public()

@@ -28,11 +28,11 @@ export class UsersEntity {
   @Column()
   lastName: string;
 
+  @OneToMany(() => AccountsEntity, (accounts) => accounts.user)
+  accounts: AccountsEntity[];
+
   @Column({ default: true })
   isActive: boolean;
-
-  @OneToMany(() => AccountsEntity, (account) => account.user)
-  accounts: AccountsEntity[];
 
   @Column({
     select: false,
@@ -46,8 +46,8 @@ export class UsersEntity {
   updated: Date;
 
   getUser(): UsersEntity {
-    const { password, ...user } = this;
+    const { ...user } = this;
 
-    return user as Omit<UsersEntity, 'password' | 'getUser()'>;
+    return user as unknown as Omit<UsersEntity, 'getUser()'>;
   }
 }

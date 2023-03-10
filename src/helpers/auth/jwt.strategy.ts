@@ -34,7 +34,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       await this.authService.checkTokenExpTime(payload.user.id);
     }
     if (!token) {
-      console.log('WYLOGUJ UŻYTKOWNIKA! CZEKAMY AZ ACCESSCOOKIE WYGAŚNIE');
+      console.log(
+        'REFRESH TOKEN W BAZIE DANYCH WYGASŁ! CZEKAMY AZ ACCESSCOOKIE WYGAŚNIE',
+      );
     }
 
     return this.authService.validateSessionToken(payload);

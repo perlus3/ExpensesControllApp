@@ -42,14 +42,26 @@ export class UsersService {
       );
     }
   }
-  async getUserById(id: string): Promise<UsersEntity> {
+  async getUserById(userId: string): Promise<any> {
+    const userAccounts = await this.users
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.accounts', 'accounts')
+      .where('user.id = :id', { id: userId })
+      .getMany();
+
+    const { accounts } = userAccounts[0];
+    const ids = accounts.map((el) => el.id);
+
     const user = await this.users.findOne({
       where: {
-        id,
+        id: userId,
       },
     });
     if (user) {
-      return user;
+      return {
+        user,
+        userAccounts: ids,
+      };
     }
     throw new HttpException(
       'User with this id does not exist',
@@ -71,7 +83,6 @@ export class UsersService {
     if (!user?.isActive || !user?.password) {
       return undefined;
     }
-
     if (await compareMethod(password, user.password)) {
       return user.getUser();
     }
@@ -93,6 +104,7 @@ export class UsersService {
         },
         relations: ['user'],
       });
+
       const isTokenMatching = await compareMethod(
         refreshToken,
         token.refreshToken,

@@ -16,7 +16,6 @@ export const config = {
   TYPEORM_PORT: process.env['TYPEORM_PORT'],
   TYPEORM_SYNC: process.env['TYPEORM_SYNC'] === 'true',
   JWT_SECRET: process.env['JWT_SECRET'],
-
   JWT_EXPIRES_ACCESS: process.env['JWT_EXPIRES_ACCESS'],
   JWT_EXPIRES_REFRESH: process.env['JWT_EXPIRES_REFRESH'],
 };

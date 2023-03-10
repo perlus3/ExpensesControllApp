@@ -120,6 +120,7 @@ export class AuthService {
       throw new BadRequestException('Coś poszło nie tak, zaloguj się ponownie');
     }
   }
+
   async saveRefreshTokenIntoDb(
     userId: string,
     refreshToken: string,
