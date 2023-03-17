@@ -46,7 +46,7 @@ export class UsersEntity {
   updated: Date;
 
   getUser(): UsersEntity {
-    const { ...user } = this;
+    const { password, ...user } = this;
 
     return user as unknown as Omit<UsersEntity, 'getUser()'>;
   }
