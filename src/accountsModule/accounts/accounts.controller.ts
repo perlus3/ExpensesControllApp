@@ -1,7 +1,21 @@
-import { Body, Controller, Get, Param, Post, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  NotFoundException,
+  Param,
+  Post,
+  Put,
+  Req,
+} from '@nestjs/common';
 import { AccountsService } from './accounts.service';
 import { RequestWithUser } from '../../helpers/auth/auth.interface';
-import { CreateNewAccountDto } from '../dtos/createNewAccount.dto';
+import {
+  CreateNewAccountDto,
+  UpdateAccountDto,
+} from '../dtos/createNewAccount.dto';
+import { AccountsEntity } from '../../entities/accounts.entity';
 
 @Controller('accounts')
 export class AccountsController {
@@ -31,11 +45,11 @@ export class AccountsController {
 
   @Get('/:id/value')
   async getSingleAccountValue(
-    @Param('id') id: string,
+    @Param('id') accountId: string,
     @Req() req: RequestWithUser,
   ) {
     const userId = req.user.id;
-    return this.accountsService.getAccountValue(id, userId);
+    return this.accountsService.getAccountValue(accountId, userId);
   }
 
   @Post('/add')
@@ -44,5 +58,28 @@ export class AccountsController {
     @Req() req: RequestWithUser,
   ) {
     return this.accountsService.createNewAccount(body, req.user.id);
+  }
+
+  @Put(':id')
+  async updateAccount(
+    @Param('id') accountId: string,
+    @Body() body: UpdateAccountDto,
+    @Req() req: RequestWithUser,
+  ): Promise<AccountsEntity> {
+    await this.accountsService.updateAccount(accountId, body);
+    return this.accountsService.findOneAccountById(accountId, req.user.id);
+  }
+
+  @Delete('/:id')
+  async deleteAccount(@Param('id') id: string) {
+    const result = await this.accountsService.deleteAccount(id);
+
+    if (result.affected === 0) {
+      throw new NotFoundException('User not found!');
+    }
+
+    return {
+      affected: result.affected,
+    };
   }
 }

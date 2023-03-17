@@ -22,15 +22,19 @@ export class CashFlowEntity {
   name: string;
 
   @Column()
-  amount: number;
+  value: number;
 
   @Column()
   description?: string;
 
-  @ManyToOne(() => UsersEntity, (user) => user.id)
+  @ManyToOne(() => UsersEntity, (user) => user.id, {
+    onDelete: 'CASCADE',
+  })
   user: UsersEntity;
 
-  @ManyToOne(() => AccountsEntity, (byUserAccount) => byUserAccount.id)
+  @ManyToOne(() => AccountsEntity, (byUserAccount) => byUserAccount.id, {
+    onDelete: 'CASCADE',
+  })
   byUserAccount: AccountsEntity;
 
   @CreateDateColumn()
