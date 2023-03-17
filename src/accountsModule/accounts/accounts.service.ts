@@ -4,15 +4,21 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, UpdateResult } from 'typeorm';
 import { AccountsEntity } from '../../entities/accounts.entity';
-import { CreateNewAccountDto } from '../dtos/createNewAccount.dto';
+import {
+  CreateNewAccountDto,
+  UpdateAccountDto,
+} from '../dtos/createNewAccount.dto';
+import { CashFlowEntity } from '../../entities/cash-flow.entity';
 
 @Injectable()
 export class AccountsService {
   constructor(
     @InjectRepository(AccountsEntity)
     private accountsEntity: Repository<AccountsEntity>,
+    @InjectRepository(CashFlowEntity)
+    private cashFlowEntity: Repository<CashFlowEntity>,
   ) {}
 
   async createNewAccount(
@@ -38,12 +44,13 @@ export class AccountsService {
       where: { id },
       relations: ['user'],
     });
-    if (account.user.id !== userId) {
-      throw new BadRequestException('TO NIE TWOJE KONTO GAGATKU');
-    }
 
     if (!account) {
       throw new NotFoundException('Account not found.');
+    }
+
+    if (account.user.id !== userId) {
+      throw new BadRequestException('TO NIE TWOJE KONTO GAGATKU');
     }
 
     return account;
@@ -56,15 +63,40 @@ export class AccountsService {
       .where('user.id = :id', { id: userId })
       .getMany();
   }
-  async getAccountValue(id: string, userId: string): Promise<number> {
-    const account = await this.findOneAccountById(id, userId);
-
-    return account.value;
+  async getAllOperations(userId: string): Promise<CashFlowEntity[]> {
+    return await this.cashFlowEntity.find({
+      where: {
+        user: {
+          id: userId,
+        },
+      },
+      relations: ['user'],
+    });
+  }
+  async getAccountValue(accountId: string, userId: string): Promise<number> {
+    const values = await this.getAllOperations(userId);
+    const totalValue = values.map((el) => {
+      if (el.operationType === 'EXPENSE') {
+        el.value = -el.value;
+      }
+      return el.value;
+    });
+    return totalValue.reduce((sum, value) => sum + value, 0);
   }
 
   async getTotalAccountsValue(userId: string): Promise<number> {
     const accounts = await this.findAllByUserId(userId);
     const values = accounts.map((el) => el.value);
     return values.reduce((sum, value) => sum + value, 0);
+  }
+  async updateAccount(
+    accountId: string,
+    body: UpdateAccountDto,
+  ): Promise<UpdateResult> {
+    return this.accountsEntity.update(accountId, body);
+  }
+
+  async deleteAccount(id: string) {
+    return await this.accountsEntity.delete(id);
   }
 }

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeormImports } from './typeorm';
-import { UsersController } from './controllers/users/users.controller';
+import { UserController } from './controllers/users/user.controller';
 import { UsersService } from './services/users/users.service';
 import { AuthController } from './controllers/auth/auth.controller';
 import { AuthService } from './services/auth/auth.service';
@@ -12,7 +12,7 @@ import { AccountsModule } from './accountsModule/accounts.module';
 
 @Module({
   imports: [...TypeormImports, AccountsModule],
-  controllers: [UsersController, AuthController],
+  controllers: [UserController, AuthController],
   providers: [
     UsersService,
     AuthService,

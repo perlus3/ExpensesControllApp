@@ -85,6 +85,7 @@ export class AuthController {
     response.json({
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
+      user: validateUser,
     });
   }
 
@@ -107,7 +108,7 @@ export class AuthController {
     });
 
     request.res.setHeader('AccessToken', AccessToken);
-    return request.user;
+    return AccessToken;
   }
 
   /**

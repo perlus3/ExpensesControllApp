@@ -21,7 +21,9 @@ export class AccountsEntity {
   @Column()
   name: string;
 
-  @ManyToOne(() => UsersEntity, (user) => user.id)
+  @ManyToOne(() => UsersEntity, (user) => user.id, {
+    onDelete: 'CASCADE',
+  })
   user: UsersEntity;
 
   @Column()
