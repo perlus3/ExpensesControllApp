@@ -46,9 +46,12 @@ export class JwtRefreshTokenStrategy extends PassportStrategy(
 
   async validate(request: Request, payload: AuthPayloadJWT) {
     const refreshToken = request.cookies?.RefreshToken;
+    console.log(refreshToken);
     return this.userService.getUserIfRefreshTokenMatches(
       refreshToken,
       payload.user.id,
     );
   }
 }
+
+//@Todo jak sie loguje to tworze token zapisuje do bazy danych i do ciastka, jak sie wyloguje to usuwam ciastka i token z bazy danych wiec gdy zaloguje sie to moge zrobic refreshToken bo tokeny ten z ciastek i z bazy sie zgadzaja, ale jak zaloguje się dwa razy to token istnieje w bazie wiec sie nie zapisuje, a token z ciastka sie zapisuje wiec nie moge zrobic refreshtoken bo tokeny się różnią więc PRAKTYCZNIE działa bo nikt nie bedzie logowal sie dwa razy (bez uprzedniego wylogowania się)

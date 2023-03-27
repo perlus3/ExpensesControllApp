@@ -39,32 +39,64 @@ export class CashFlowController {
     @Body() body: UpdateOperationDto,
     @Req() req: RequestWithUser,
   ): Promise<UpdateOperationDto> {
-    const operationAccount = await this.cashFlowService.findOperationAccount(
-      operationId,
-    );
+    await this.cashFlowService.updateOperation(operationId, body);
+
+    const operation = await this.cashFlowService.getOneOperation(operationId);
+    console.log(operation);
 
     const account = await this.accountService.findOneAccountById(
-      operationAccount.byUserAccount.id,
-      req.user.id,
-    );
-    const value = await this.accountService.getAccountValue(
-      account.id,
+      operation.byUserAccount.id,
       req.user.id,
     );
 
+    console.log(operation.value);
+    console.log(account.value);
+
+    const totalValue = await this.cashFlowService.getCashFlowReport(
+      req.user.id,
+    );
+
+    const { finalReport } = totalValue;
+
     await this.accountService.updateAccount(account.id, {
-      value,
+      value: finalReport,
       name: account.name,
       currency: account.currency,
     });
-
-    await this.cashFlowService.updateOperation(operationId, body);
 
     return body;
   }
 
   @Delete('/:id')
-  async deleteOperation(@Param('id') id: string) {
+  async deleteOperation(@Param('id') id: string, @Req() req: RequestWithUser) {
+    const operation = await this.cashFlowService.getOneOperation(id);
+
+    const account = await this.accountService.findOneAccountById(
+      operation.byUserAccount.id,
+      req.user.id,
+    );
+
+    const value = await this.accountService.getAccountValue(
+      account.id,
+      req.user.id,
+    );
+
+    if (operation.operationType === 'EXPENSE') {
+      await this.accountService.updateAccount(account.id, {
+        value: value + operation.value,
+        name: account.name,
+        currency: account.currency,
+      });
+    }
+
+    if (operation.operationType === 'INCOME') {
+      await this.accountService.updateAccount(account.id, {
+        value: value - operation.value,
+        name: account.name,
+        currency: account.currency,
+      });
+    }
+
     const result = await this.cashFlowService.deleteOperation(id);
 
     if (result.affected === 0) {
@@ -75,22 +107,16 @@ export class CashFlowController {
       affected: result.affected,
     };
   }
-  @Get('all')
+  @Get('/all/:id')
+  async getSingleAccountOperations(
+    @Req() req: RequestWithUser,
+    @Param('id') accountId: string,
+  ) {
+    return this.cashFlowService.getAllAccountOperations(accountId);
+  }
+
+  @Get('report')
   async getCashFlowReport(@Req() req: RequestWithUser) {
-    const userOperations = await this.cashFlowService.getAllOperations(
-      req.user.id,
-    );
-    const totalUserIncome = userOperations
-      .filter((el) => el.operationType === 'INCOME')
-      .reduce((sum, el) => sum + el.value, 0);
-
-    const totalUserExpenses = userOperations
-      .filter((el) => el.operationType === 'EXPENSE')
-      .reduce((sum, el) => sum + el.value, 0);
-
-    return {
-      totalUserIncome,
-      totalUserExpenses,
-    };
+    return this.cashFlowService.getCashFlowReport(req.user.id);
   }
 }

@@ -6,8 +6,7 @@ import {
   IsString,
   Min,
 } from 'class-validator';
-import { OperationType } from '../../entities/cash-flow.entity';
-import { Currency } from '../../entities/accounts.entity';
+import { Currency, OperationType } from 'types';
 
 export class NewOperationDto {
   @IsString()
@@ -25,7 +24,6 @@ export class NewOperationDto {
   @IsEnum(OperationType)
   operationType: OperationType;
 }
-
 export class UpdateOperationDto {
   @IsOptional()
   @IsString()

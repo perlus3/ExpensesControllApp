@@ -1,6 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { UsersEntity } from '../../entities/users.entity';
-import { hashMethod } from '../../helpers/password';
 import * as JWT from 'jsonwebtoken';
 import {
   AuthLoginByJWT,
@@ -126,13 +125,13 @@ export class AuthService {
     refreshToken: string,
   ): Promise<void> {
     const decode = this.jwtService.verify(refreshToken);
-    const safeToken = await hashMethod(refreshToken);
+    // const safeToken = await hashMethod(refreshToken);
 
     const expiresIn = dayjs(decode.exp * 1000).toDate();
 
     await this.refreshTokens.save({
       user: { id: userId },
-      refreshToken: safeToken,
+      refreshToken,
       expiresIn,
     });
   }

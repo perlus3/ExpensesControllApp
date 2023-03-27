@@ -62,7 +62,28 @@ export class CashFlowService {
   async deleteOperation(id: string) {
     return await this.cashFlowEntity.delete(id);
   }
-  async getAllOperations(userId: string): Promise<CashFlowEntity[]> {
+
+  async getAllAccountOperations(accountId: string): Promise<CashFlowEntity[]> {
+    return await this.cashFlowEntity.find({
+      where: {
+        byUserAccount: {
+          id: accountId,
+        },
+      },
+      relations: ['byUserAccount'],
+    });
+  }
+
+  async getOneOperation(operationId: string): Promise<CashFlowEntity> {
+    return await this.cashFlowEntity.findOne({
+      where: {
+        id: operationId,
+      },
+      relations: ['byUserAccount'],
+    });
+  }
+
+  async getAllUserOperations(userId: string): Promise<CashFlowEntity[]> {
     return await this.cashFlowEntity.find({
       where: {
         user: {
@@ -73,12 +94,23 @@ export class CashFlowService {
     });
   }
 
-  async findOperationAccount(operationId: string): Promise<CashFlowEntity> {
-    return await this.cashFlowEntity.findOne({
-      where: {
-        id: operationId,
-      },
-      relations: ['byUserAccount'],
-    });
+  async getCashFlowReport(userId: string) {
+    const userOperations = await this.getAllUserOperations(userId);
+    const totalUserIncome = userOperations
+      .filter((el) => el.operationType === 'INCOME')
+      .reduce((sum, el) => sum + el.value, 0);
+
+    const totalUserExpenses = userOperations
+      .filter((el) => el.operationType === 'EXPENSE')
+      .reduce((sum, el) => sum + el.value, 0);
+
+    const finalReport = totalUserIncome - totalUserExpenses;
+
+    return {
+      userOperations,
+      totalUserIncome,
+      totalUserExpenses,
+      finalReport,
+    };
   }
 }

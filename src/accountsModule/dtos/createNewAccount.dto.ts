@@ -5,7 +5,7 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
-import { Currency } from 'src/entities/accounts.entity';
+import { Currency } from 'types';
 
 export class CreateNewAccountDto {
   @IsString()
@@ -16,7 +16,6 @@ export class CreateNewAccountDto {
   @IsNotEmpty()
   currency: Currency;
 }
-
 export class UpdateAccountDto {
   @IsOptional()
   @IsString()

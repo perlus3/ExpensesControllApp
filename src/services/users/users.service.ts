@@ -105,11 +105,7 @@ export class UsersService {
         relations: ['user'],
       });
 
-      const isTokenMatching = await compareMethod(
-        refreshToken,
-        token.refreshToken,
-      );
-      if (isTokenMatching) {
+      if (refreshToken === token.refreshToken) {
         return user;
       }
     } catch (e) {

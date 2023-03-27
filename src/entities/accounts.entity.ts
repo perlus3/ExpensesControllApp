@@ -7,12 +7,8 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { UsersEntity } from './users.entity';
+import { Currency } from '../../types';
 
-export enum Currency {
-  PLN = 'PLN',
-  EURO = 'EURO',
-  DOLAR = 'DOLAR',
-}
 @Entity()
 export class AccountsEntity {
   @PrimaryGeneratedColumn('uuid')

@@ -119,6 +119,7 @@ export class AuthController {
   async logOut(@Req() req: RequestWithUser) {
     await this.authService.removeRefreshTokenFromDb(req.user.id);
     req.res.setHeader('Set-Cookie', this.authService.getCookiesForLogOut());
+    req.res.setHeader('Authorization', 'BEARER');
     return 'WYLOGOWANO';
   }
 }

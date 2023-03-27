@@ -8,12 +8,7 @@ import {
 } from 'typeorm';
 import { UsersEntity } from './users.entity';
 import { AccountsEntity } from './accounts.entity';
-
-export enum OperationType {
-  INCOME = 'INCOME',
-  EXPENSE = 'EXPENSE',
-}
-
+import { OperationType } from 'types';
 @Entity()
 export class CashFlowEntity {
   @PrimaryGeneratedColumn('uuid')
@@ -23,7 +18,6 @@ export class CashFlowEntity {
 
   @Column()
   value: number;
-
   @Column()
   description?: string;
 
