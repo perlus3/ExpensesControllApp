@@ -42,15 +42,11 @@ export class CashFlowController {
     await this.cashFlowService.updateOperation(operationId, body);
 
     const operation = await this.cashFlowService.getOneOperation(operationId);
-    console.log(operation);
 
     const account = await this.accountService.findOneAccountById(
       operation.byUserAccount.id,
       req.user.id,
     );
-
-    console.log(operation.value);
-    console.log(account.value);
 
     const totalValue = await this.cashFlowService.getCashFlowReport(
       req.user.id,

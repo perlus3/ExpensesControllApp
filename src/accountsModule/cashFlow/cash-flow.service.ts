@@ -70,6 +70,9 @@ export class CashFlowService {
           id: accountId,
         },
       },
+      order: {
+        createdAt: 'DESC',
+      },
       relations: ['byUserAccount'],
     });
   }
