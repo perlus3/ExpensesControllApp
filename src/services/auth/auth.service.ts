@@ -125,7 +125,6 @@ export class AuthService {
     refreshToken: string,
   ): Promise<void> {
     const decode = this.jwtService.verify(refreshToken);
-    // const safeToken = await hashMethod(refreshToken);
 
     const expiresIn = dayjs(decode.exp * 1000).toDate();
 
