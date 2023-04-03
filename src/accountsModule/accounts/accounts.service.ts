@@ -81,13 +81,13 @@ export class AccountsService {
       }
       return el.value;
     });
-    return totalValue.reduce((sum, value) => sum + value, 0);
+    return totalValue.reduce((sum, value) => sum + Number(value), 0);
   }
 
   async getTotalAccountsValue(userId: string): Promise<number> {
     const accounts = await this.findAllByUserId(userId);
     const values = accounts.map((el) => el.value);
-    return values.reduce((sum, value) => sum + value, 0);
+    return values.reduce((sum, value) => sum + Number(value), 0);
   }
   async updateAccount(
     accountId: string,

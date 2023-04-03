@@ -16,7 +16,11 @@ export class CashFlowEntity {
   @Column()
   name: string;
 
-  @Column()
+  @Column({
+    type: 'decimal',
+    precision: 20,
+    scale: 2,
+  })
   value: number;
   @Column()
   description?: string;

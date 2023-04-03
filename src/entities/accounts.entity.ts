@@ -22,7 +22,11 @@ export class AccountsEntity {
   })
   user: UsersEntity;
 
-  @Column()
+  @Column({
+    type: 'decimal',
+    precision: 20,
+    scale: 2,
+  })
   value: number;
 
   @Column({

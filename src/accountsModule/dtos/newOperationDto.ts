@@ -6,14 +6,14 @@ import {
   IsString,
   Min,
 } from 'class-validator';
-import { Currency, OperationType } from 'types';
+import { OperationType } from 'types';
 
 export class NewOperationDto {
   @IsString()
   @IsNotEmpty()
   name: string;
   @IsNumber()
-  @Min(1)
+  @Min(0.01)
   @IsNotEmpty()
   value: number;
 
@@ -27,10 +27,9 @@ export class NewOperationDto {
 export class UpdateOperationDto {
   @IsOptional()
   @IsString()
-  @IsNotEmpty()
   name: string;
   @IsNumber()
-  @IsNotEmpty()
+  @IsOptional()
   value: number;
   @IsString()
   @IsOptional()
@@ -38,7 +37,4 @@ export class UpdateOperationDto {
   @IsOptional()
   @IsEnum(OperationType)
   operationType: OperationType;
-  @IsOptional()
-  @IsEnum(Currency)
-  currency: Currency;
 }

@@ -1,7 +1,7 @@
 import {
+  IsDecimal,
   IsEnum,
   IsNotEmpty,
-  IsNumber,
   IsOptional,
   IsString,
 } from 'class-validator';
@@ -22,7 +22,7 @@ export class UpdateAccountDto {
   @IsNotEmpty()
   name: string;
   @IsOptional()
-  @IsNumber()
+  @IsDecimal()
   @IsNotEmpty()
   value: number;
   @IsOptional()

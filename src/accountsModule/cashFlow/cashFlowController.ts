@@ -55,7 +55,7 @@ export class CashFlowController {
     const { finalReport } = totalValue;
 
     await this.accountService.updateAccount(account.id, {
-      value: finalReport,
+      value: Number(finalReport),
       name: account.name,
       currency: account.currency,
     });
@@ -79,7 +79,7 @@ export class CashFlowController {
 
     if (operation.operationType === 'EXPENSE') {
       await this.accountService.updateAccount(account.id, {
-        value: value + operation.value,
+        value: Number(value) + Number(operation.value),
         name: account.name,
         currency: account.currency,
       });
@@ -87,7 +87,7 @@ export class CashFlowController {
 
     if (operation.operationType === 'INCOME') {
       await this.accountService.updateAccount(account.id, {
-        value: value - operation.value,
+        value: Number(value) - Number(operation.value),
         name: account.name,
         currency: account.currency,
       });
@@ -109,6 +109,14 @@ export class CashFlowController {
     @Param('id') accountId: string,
   ) {
     return this.cashFlowService.getAllAccountOperations(accountId);
+  }
+
+  @Get('/:id')
+  async getSingleOperations(
+    @Req() req: RequestWithUser,
+    @Param('id') operationId: string,
+  ) {
+    return this.cashFlowService.getOneOperation(operationId);
   }
 
   @Get('report')

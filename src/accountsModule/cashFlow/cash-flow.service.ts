@@ -30,10 +30,10 @@ export class CashFlowService {
 
     switch (newOperation.operationType) {
       case 'EXPENSE':
-        account.value = account.value - newOperation.value;
+        account.value = Number(account.value) - Number(newOperation.value);
         break;
       case 'INCOME':
-        account.value = account.value + newOperation.value;
+        account.value = Number(account.value) + Number(newOperation.value);
         break;
       default:
         return undefined;
@@ -101,11 +101,11 @@ export class CashFlowService {
     const userOperations = await this.getAllUserOperations(userId);
     const totalUserIncome = userOperations
       .filter((el) => el.operationType === 'INCOME')
-      .reduce((sum, el) => sum + el.value, 0);
+      .reduce((sum, el) => sum + Number(el.value), 0);
 
     const totalUserExpenses = userOperations
       .filter((el) => el.operationType === 'EXPENSE')
-      .reduce((sum, el) => sum + el.value, 0);
+      .reduce((sum, el) => sum + Number(el.value), 0);
 
     const finalReport = totalUserIncome - totalUserExpenses;
 
