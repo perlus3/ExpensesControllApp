@@ -22,7 +22,11 @@ export class NewOperationDto {
   description?: string;
 
   @IsEnum(OperationType)
+  @IsNotEmpty()
   operationType: OperationType;
+  @IsNotEmpty()
+  @IsString()
+  categoryId: string;
 }
 export class UpdateOperationDto {
   @IsOptional()
@@ -37,4 +41,7 @@ export class UpdateOperationDto {
   @IsOptional()
   @IsEnum(OperationType)
   operationType: OperationType;
+  @IsNotEmpty()
+  @IsString()
+  categoryId: string;
 }

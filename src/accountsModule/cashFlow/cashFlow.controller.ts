@@ -9,7 +9,7 @@ import {
   Put,
   Req,
 } from '@nestjs/common';
-import { CashFlowService } from './cash-flow.service';
+import { CashFlowService } from './cashFlow.service';
 import { NewOperationDto, UpdateOperationDto } from '../dtos/newOperationDto';
 import { RequestWithUser } from '../../helpers/auth/auth.interface';
 import { AccountsService } from '../accounts/accounts.service';
@@ -23,11 +23,11 @@ export class CashFlowController {
   @Post('/:id/add')
   async newOperation(
     @Param('id') accountId: string,
-    @Body() expenseData: NewOperationDto,
+    @Body() operationData: NewOperationDto,
     @Req() req: RequestWithUser,
   ) {
     return this.cashFlowService.createOperation(
-      expenseData,
+      operationData,
       req.user.id,
       accountId,
     );
@@ -119,7 +119,7 @@ export class CashFlowController {
     return this.cashFlowService.getOneOperation(operationId);
   }
 
-  @Get('report')
+  @Get('/total/report')
   async getCashFlowReport(@Req() req: RequestWithUser) {
     return this.cashFlowService.getCashFlowReport(req.user.id);
   }

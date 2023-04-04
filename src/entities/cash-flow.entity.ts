@@ -8,7 +8,8 @@ import {
 } from 'typeorm';
 import { UsersEntity } from './users.entity';
 import { AccountsEntity } from './accounts.entity';
-import { OperationType } from 'types';
+import { CategoriesEntity } from './categories.entity';
+import { OperationType } from 'types/operations/operations-entity';
 @Entity()
 export class CashFlowEntity {
   @PrimaryGeneratedColumn('uuid')
@@ -41,6 +42,14 @@ export class CashFlowEntity {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @Column()
+  @ManyToOne(() => CategoriesEntity, (category) => category.name, {
+    onDelete: 'CASCADE',
+  })
+  category: CategoriesEntity;
+
+  @Column({
+    type: 'enum',
+    enum: OperationType,
+  })
   operationType: OperationType;
 }

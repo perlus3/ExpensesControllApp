@@ -5,6 +5,7 @@ import { CashFlowEntity } from '../../entities/cash-flow.entity';
 import { NewOperationDto, UpdateOperationDto } from '../dtos/newOperationDto';
 import { AccountsService } from '../accounts/accounts.service';
 import { AccountsEntity } from '../../entities/accounts.entity';
+import { CategoriesEntity } from '../../entities/categories.entity';
 
 @Injectable()
 export class CashFlowService {
@@ -13,16 +14,20 @@ export class CashFlowService {
     private cashFlowEntity: Repository<CashFlowEntity>,
     @InjectRepository(AccountsEntity)
     private accountsEntity: Repository<AccountsEntity>,
+    @InjectRepository(CategoriesEntity)
+    private categoriesEntity: Repository<CategoriesEntity>,
     private accountsService: AccountsService,
   ) {}
 
-  //@Todo OperationType dac ja jako osobny argument w funkcji czy przekazywac w Body?
   async createOperation(
     operationData: NewOperationDto,
     userId: string,
     accountId: string,
   ): Promise<CashFlowEntity> {
     const newOperation = this.cashFlowEntity.create(operationData);
+
+    const { categoryId } = operationData;
+
     const account = await this.accountsService.findOneAccountById(
       accountId,
       userId,
@@ -43,12 +48,26 @@ export class CashFlowService {
       ...account,
     });
 
+    const category = await this.categoriesEntity.findOne({
+      where: {
+        id: categoryId,
+      },
+    });
+
+    const { type } = category;
+
     return this.cashFlowEntity.save({
       ...newOperation,
       user: {
         id: userId,
       },
-      byUserAccount: account,
+      operationType: type,
+      byUserAccount: {
+        id: accountId,
+      },
+      category: {
+        id: categoryId,
+      },
     });
   }
 

@@ -5,12 +5,14 @@ import { UsersEntity } from '../entities/users.entity';
 import { AccountsEntity } from '../entities/accounts.entity';
 import { CashFlowEntity } from '../entities/cash-flow.entity';
 import { RefreshTokensEntity } from '../entities/refresh-tokens.entity';
+import { CategoriesEntity } from '../entities/categories.entity';
 
 const entities = [
   UsersEntity,
   AccountsEntity,
   CashFlowEntity,
   RefreshTokensEntity,
+  CategoriesEntity,
 ];
 
 export const dataSourceOptions: DataSourceOptions = {
