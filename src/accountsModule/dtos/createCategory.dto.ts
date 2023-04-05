@@ -10,3 +10,8 @@ export class CreateCategoryDto {
   @IsNotEmpty()
   type: OperationType;
 }
+export class UpdateCategoryDto {
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+}

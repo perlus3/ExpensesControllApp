@@ -2,9 +2,11 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { CashFlowEntity } from './cash-flow.entity';
 import { OperationType } from '../../types';
 
 @Entity()
@@ -15,6 +17,8 @@ export class CategoriesEntity {
     unique: true,
   })
   name: string;
+  @OneToMany(() => CashFlowEntity, (operation) => operation.category)
+  operations: CashFlowEntity[];
 
   @Column({
     type: 'enum',

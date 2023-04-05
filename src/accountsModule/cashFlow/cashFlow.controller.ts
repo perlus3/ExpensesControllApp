@@ -13,10 +13,15 @@ import { CashFlowService } from './cashFlow.service';
 import { NewOperationDto, UpdateOperationDto } from '../dtos/newOperationDto';
 import { RequestWithUser } from '../../helpers/auth/auth.interface';
 import { AccountsService } from '../accounts/accounts.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { CashFlowEntity } from '../../entities/cash-flow.entity';
+import { Repository, UpdateResult } from 'typeorm';
 
 @Controller('operations')
 export class CashFlowController {
   constructor(
+    @InjectRepository(CashFlowEntity)
+    private cashFlowEntity: Repository<CashFlowEntity>,
     private cashFlowService: CashFlowService,
     private accountService: AccountsService,
   ) {}
@@ -38,10 +43,12 @@ export class CashFlowController {
     @Param('id') operationId: string,
     @Body() body: UpdateOperationDto,
     @Req() req: RequestWithUser,
-  ): Promise<UpdateOperationDto> {
-    await this.cashFlowService.updateOperation(operationId, body);
-
+  ): Promise<UpdateResult> {
     const operation = await this.cashFlowService.getOneOperation(operationId);
+
+    const res = await this.cashFlowService.updateOperation(operationId, {
+      ...body,
+    });
 
     const account = await this.accountService.findOneAccountById(
       operation.byUserAccount.id,
@@ -60,7 +67,7 @@ export class CashFlowController {
       currency: account.currency,
     });
 
-    return body;
+    return res;
   }
 
   @Delete('/:id')

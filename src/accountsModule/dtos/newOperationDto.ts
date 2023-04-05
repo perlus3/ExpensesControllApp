@@ -7,6 +7,7 @@ import {
   Min,
 } from 'class-validator';
 import { OperationType } from 'types';
+import { CategoriesEntity } from '../../entities/categories.entity';
 
 export class NewOperationDto {
   @IsString()
@@ -26,7 +27,7 @@ export class NewOperationDto {
   operationType: OperationType;
   @IsNotEmpty()
   @IsString()
-  categoryId: string;
+  categoryId: CategoriesEntity['id'];
 }
 export class UpdateOperationDto {
   @IsOptional()
@@ -38,10 +39,4 @@ export class UpdateOperationDto {
   @IsString()
   @IsOptional()
   description?: string;
-  @IsOptional()
-  @IsEnum(OperationType)
-  operationType: OperationType;
-  @IsNotEmpty()
-  @IsString()
-  categoryId: string;
 }

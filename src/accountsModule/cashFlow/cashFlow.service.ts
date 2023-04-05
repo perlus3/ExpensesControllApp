@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, UpdateResult } from 'typeorm';
 import { CashFlowEntity } from '../../entities/cash-flow.entity';
@@ -26,8 +26,6 @@ export class CashFlowService {
   ): Promise<CashFlowEntity> {
     const newOperation = this.cashFlowEntity.create(operationData);
 
-    const { categoryId } = operationData;
-
     const account = await this.accountsService.findOneAccountById(
       accountId,
       userId,
@@ -48,20 +46,25 @@ export class CashFlowService {
       ...account,
     });
 
+    const { categoryId } = operationData;
+
     const category = await this.categoriesEntity.findOne({
       where: {
         id: categoryId,
       },
     });
 
-    const { type } = category;
+    if (category.type !== newOperation.operationType) {
+      throw new BadRequestException(
+        'Typ kategorii różni się od typu operacji!',
+      );
+    }
 
     return this.cashFlowEntity.save({
       ...newOperation,
       user: {
         id: userId,
       },
-      operationType: type,
       byUserAccount: {
         id: accountId,
       },
@@ -75,7 +78,15 @@ export class CashFlowService {
     operationId: string,
     body: UpdateOperationDto,
   ): Promise<UpdateResult> {
-    return this.cashFlowEntity.update(operationId, body);
+    return this.cashFlowEntity
+      .createQueryBuilder()
+      .update(CashFlowEntity)
+      .set({
+        name: body.name,
+        value: body.value,
+      })
+      .where('id = :id', { id: operationId })
+      .execute();
   }
 
   async deleteOperation(id: string) {
@@ -101,7 +112,7 @@ export class CashFlowService {
       where: {
         id: operationId,
       },
-      relations: ['byUserAccount'],
+      relations: ['byUserAccount', 'category'],
     });
   }
 

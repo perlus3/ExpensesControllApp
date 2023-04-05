@@ -43,7 +43,7 @@ export class CashFlowEntity {
   updatedAt: Date;
 
   @ManyToOne(() => CategoriesEntity, (category) => category.name, {
-    onDelete: 'CASCADE',
+    onDelete: 'SET NULL',
   })
   category: CategoriesEntity;
 
