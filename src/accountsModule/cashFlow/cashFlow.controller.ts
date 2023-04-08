@@ -9,25 +9,30 @@ import {
   Put,
   Req,
 } from '@nestjs/common';
-import { CashFlowService } from './cash-flow.service';
+import { CashFlowService } from './cashFlow.service';
 import { NewOperationDto, UpdateOperationDto } from '../dtos/newOperationDto';
 import { RequestWithUser } from '../../helpers/auth/auth.interface';
 import { AccountsService } from '../accounts/accounts.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { CashFlowEntity } from '../../entities/cash-flow.entity';
+import { Repository, UpdateResult } from 'typeorm';
 
 @Controller('operations')
 export class CashFlowController {
   constructor(
+    @InjectRepository(CashFlowEntity)
+    private cashFlowEntity: Repository<CashFlowEntity>,
     private cashFlowService: CashFlowService,
     private accountService: AccountsService,
   ) {}
   @Post('/:id/add')
   async newOperation(
     @Param('id') accountId: string,
-    @Body() expenseData: NewOperationDto,
+    @Body() operationData: NewOperationDto,
     @Req() req: RequestWithUser,
   ) {
     return this.cashFlowService.createOperation(
-      expenseData,
+      operationData,
       req.user.id,
       accountId,
     );
@@ -38,10 +43,12 @@ export class CashFlowController {
     @Param('id') operationId: string,
     @Body() body: UpdateOperationDto,
     @Req() req: RequestWithUser,
-  ): Promise<UpdateOperationDto> {
-    await this.cashFlowService.updateOperation(operationId, body);
-
+  ): Promise<UpdateResult> {
     const operation = await this.cashFlowService.getOneOperation(operationId);
+
+    const res = await this.cashFlowService.updateOperation(operationId, {
+      ...body,
+    });
 
     const account = await this.accountService.findOneAccountById(
       operation.byUserAccount.id,
@@ -55,12 +62,12 @@ export class CashFlowController {
     const { finalReport } = totalValue;
 
     await this.accountService.updateAccount(account.id, {
-      value: finalReport,
+      value: Number(finalReport),
       name: account.name,
       currency: account.currency,
     });
 
-    return body;
+    return res;
   }
 
   @Delete('/:id')
@@ -79,7 +86,7 @@ export class CashFlowController {
 
     if (operation.operationType === 'EXPENSE') {
       await this.accountService.updateAccount(account.id, {
-        value: value + operation.value,
+        value: Number(value) + Number(operation.value),
         name: account.name,
         currency: account.currency,
       });
@@ -87,7 +94,7 @@ export class CashFlowController {
 
     if (operation.operationType === 'INCOME') {
       await this.accountService.updateAccount(account.id, {
-        value: value - operation.value,
+        value: Number(value) - Number(operation.value),
         name: account.name,
         currency: account.currency,
       });
@@ -111,7 +118,15 @@ export class CashFlowController {
     return this.cashFlowService.getAllAccountOperations(accountId);
   }
 
-  @Get('report')
+  @Get('/:id')
+  async getSingleOperations(
+    @Req() req: RequestWithUser,
+    @Param('id') operationId: string,
+  ) {
+    return this.cashFlowService.getOneOperation(operationId);
+  }
+
+  @Get('/total/report')
   async getCashFlowReport(@Req() req: RequestWithUser) {
     return this.cashFlowService.getCashFlowReport(req.user.id);
   }

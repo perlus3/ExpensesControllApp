@@ -23,18 +23,21 @@ export class AuthService {
   get secretKey(): string {
     return this._secretKey;
   }
+
   constructor(
     @InjectRepository(UsersEntity) private users: Repository<UsersEntity>,
     @InjectRepository(RefreshTokensEntity)
     private refreshTokens: Repository<RefreshTokensEntity>,
     private jwtService: JwtService,
   ) {}
+
   getCookiesForLogOut() {
     return [
       'AccessToken=; HttpOnly; Path=/; Max-Age=0',
       'RefreshToken=; HttpOnly; Path=/; Max-Age=0',
     ];
   }
+
   async removeRefreshTokenFromDb(userId: string): Promise<void> {
     const tokenInDb = await this.getRefreshTokenFromDb(userId);
     await this.refreshTokens.remove(tokenInDb);
@@ -55,6 +58,7 @@ export class AuthService {
     }
     return user.getUser();
   }
+
   createAccessAndRefreshTokens(user: UsersEntity): AuthLoginByJWT {
     const payload = this.getTokenPayload(user);
     const accessToken = this.signToken(user.id, payload, AuthTokenType.Access);
@@ -73,6 +77,7 @@ export class AuthService {
       refreshToken,
     };
   }
+
   private getTokenPayload(user: UsersEntity): AuthPayloadJWT {
     return {
       user: {
@@ -82,6 +87,7 @@ export class AuthService {
       },
     };
   }
+
   signToken(
     subjectId: string,
     payload: object,
@@ -95,6 +101,7 @@ export class AuthService {
       expiresIn,
     });
   }
+
   async createAccessTokenFromRefreshToken(
     refreshToken: string,
   ): Promise<string> {
@@ -125,7 +132,6 @@ export class AuthService {
     refreshToken: string,
   ): Promise<void> {
     const decode = this.jwtService.verify(refreshToken);
-    // const safeToken = await hashMethod(refreshToken);
 
     const expiresIn = dayjs(decode.exp * 1000).toDate();
 
@@ -135,6 +141,7 @@ export class AuthService {
       expiresIn,
     });
   }
+
   async getRefreshTokenFromDb(userId: string): Promise<RefreshTokensEntity> {
     return this.refreshTokens.findOne({
       where: {
@@ -146,6 +153,7 @@ export class AuthService {
       relations: ['user'],
     });
   }
+
   async checkTokenExpTime(userId: string): Promise<void> {
     const token = await this.getRefreshTokenFromDb(userId);
 
@@ -156,12 +164,14 @@ export class AuthService {
       await this.refreshTokens.remove(token);
     }
   }
+
   private getTokenExpiresIn(tokenType: AuthTokenType): string {
     const prefix = 'JWT_EXPIRES_';
     const value = (config as any)[prefix + tokenType];
 
     return (value || '').trim();
   }
+
   private getSecretKeyFromEnv(): string {
     const secretEnv = config.JWT_SECRET;
     const value = (secretEnv || '').trim();

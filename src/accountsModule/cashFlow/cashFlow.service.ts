@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, UpdateResult } from 'typeorm';
 import { CashFlowEntity } from '../../entities/cash-flow.entity';
 import { NewOperationDto, UpdateOperationDto } from '../dtos/newOperationDto';
 import { AccountsService } from '../accounts/accounts.service';
 import { AccountsEntity } from '../../entities/accounts.entity';
+import { CategoriesEntity } from '../../entities/categories.entity';
 
 @Injectable()
 export class CashFlowService {
@@ -13,16 +14,18 @@ export class CashFlowService {
     private cashFlowEntity: Repository<CashFlowEntity>,
     @InjectRepository(AccountsEntity)
     private accountsEntity: Repository<AccountsEntity>,
+    @InjectRepository(CategoriesEntity)
+    private categoriesEntity: Repository<CategoriesEntity>,
     private accountsService: AccountsService,
   ) {}
 
-  //@Todo OperationType dac ja jako osobny argument w funkcji czy przekazywac w Body?
   async createOperation(
     operationData: NewOperationDto,
     userId: string,
     accountId: string,
   ): Promise<CashFlowEntity> {
     const newOperation = this.cashFlowEntity.create(operationData);
+
     const account = await this.accountsService.findOneAccountById(
       accountId,
       userId,
@@ -30,10 +33,10 @@ export class CashFlowService {
 
     switch (newOperation.operationType) {
       case 'EXPENSE':
-        account.value = account.value - newOperation.value;
+        account.value = Number(account.value) - Number(newOperation.value);
         break;
       case 'INCOME':
-        account.value = account.value + newOperation.value;
+        account.value = Number(account.value) + Number(newOperation.value);
         break;
       default:
         return undefined;
@@ -43,12 +46,31 @@ export class CashFlowService {
       ...account,
     });
 
+    const { categoryId } = operationData;
+
+    const category = await this.categoriesEntity.findOne({
+      where: {
+        id: categoryId,
+      },
+    });
+
+    if (category.type !== newOperation.operationType) {
+      throw new BadRequestException(
+        'Typ kategorii różni się od typu operacji!',
+      );
+    }
+
     return this.cashFlowEntity.save({
       ...newOperation,
       user: {
         id: userId,
       },
-      byUserAccount: account,
+      byUserAccount: {
+        id: accountId,
+      },
+      category: {
+        id: categoryId,
+      },
     });
   }
 
@@ -56,7 +78,15 @@ export class CashFlowService {
     operationId: string,
     body: UpdateOperationDto,
   ): Promise<UpdateResult> {
-    return this.cashFlowEntity.update(operationId, body);
+    return this.cashFlowEntity
+      .createQueryBuilder()
+      .update(CashFlowEntity)
+      .set({
+        name: body.name,
+        value: body.value,
+      })
+      .where('id = :id', { id: operationId })
+      .execute();
   }
 
   async deleteOperation(id: string) {
@@ -82,7 +112,7 @@ export class CashFlowService {
       where: {
         id: operationId,
       },
-      relations: ['byUserAccount'],
+      relations: ['byUserAccount', 'category'],
     });
   }
 
@@ -101,11 +131,11 @@ export class CashFlowService {
     const userOperations = await this.getAllUserOperations(userId);
     const totalUserIncome = userOperations
       .filter((el) => el.operationType === 'INCOME')
-      .reduce((sum, el) => sum + el.value, 0);
+      .reduce((sum, el) => sum + Number(el.value), 0);
 
     const totalUserExpenses = userOperations
       .filter((el) => el.operationType === 'EXPENSE')
-      .reduce((sum, el) => sum + el.value, 0);
+      .reduce((sum, el) => sum + Number(el.value), 0);
 
     const finalReport = totalUserIncome - totalUserExpenses;
 

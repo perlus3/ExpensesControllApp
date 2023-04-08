@@ -6,14 +6,15 @@ import {
   IsString,
   Min,
 } from 'class-validator';
-import { Currency, OperationType } from 'types';
+import { OperationType } from 'types';
+import { CategoriesEntity } from '../../entities/categories.entity';
 
 export class NewOperationDto {
   @IsString()
   @IsNotEmpty()
   name: string;
   @IsNumber()
-  @Min(1)
+  @Min(0.01)
   @IsNotEmpty()
   value: number;
 
@@ -22,23 +23,20 @@ export class NewOperationDto {
   description?: string;
 
   @IsEnum(OperationType)
+  @IsNotEmpty()
   operationType: OperationType;
+  @IsNotEmpty()
+  @IsString()
+  categoryId: CategoriesEntity['id'];
 }
 export class UpdateOperationDto {
   @IsOptional()
   @IsString()
-  @IsNotEmpty()
   name: string;
   @IsNumber()
-  @IsNotEmpty()
+  @IsOptional()
   value: number;
   @IsString()
   @IsOptional()
   description?: string;
-  @IsOptional()
-  @IsEnum(OperationType)
-  operationType: OperationType;
-  @IsOptional()
-  @IsEnum(Currency)
-  currency: Currency;
 }

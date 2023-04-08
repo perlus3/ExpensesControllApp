@@ -8,7 +8,8 @@ import {
 } from 'typeorm';
 import { UsersEntity } from './users.entity';
 import { AccountsEntity } from './accounts.entity';
-import { OperationType } from 'types';
+import { CategoriesEntity } from './categories.entity';
+import { OperationType } from 'types/operations/operations-entity';
 @Entity()
 export class CashFlowEntity {
   @PrimaryGeneratedColumn('uuid')
@@ -16,7 +17,11 @@ export class CashFlowEntity {
   @Column()
   name: string;
 
-  @Column()
+  @Column({
+    type: 'decimal',
+    precision: 20,
+    scale: 2,
+  })
   value: number;
   @Column()
   description?: string;
@@ -37,6 +42,14 @@ export class CashFlowEntity {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @Column()
+  @ManyToOne(() => CategoriesEntity, (category) => category.name, {
+    onDelete: 'SET NULL',
+  })
+  category: CategoriesEntity;
+
+  @Column({
+    type: 'enum',
+    enum: OperationType,
+  })
   operationType: OperationType;
 }
