@@ -43,7 +43,7 @@ export class EmailConfirmationService {
           expiresAt: expTime,
         });
       }
-      const url = `localhost:3001/email-confirmation/confirm/${token}`;
+      const url = `localhost:3001/email/confirm-email/${token}`;
       const subject = 'User Email confirmation';
 
       return this.emailService.sendMail(

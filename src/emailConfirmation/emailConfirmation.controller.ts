@@ -13,7 +13,7 @@ import { RequestWithUser } from '../helpers/auth/auth.interface';
 import { ConfirmUserTokenDto } from '../dtos/confirmUserToken.dto';
 import { EmailConfirmationService } from './emailConfirmation.service';
 
-@Controller('email-confirmation')
+@Controller('email')
 @UseInterceptors(ClassSerializerInterceptor)
 export class EmailConfirmationController {
   constructor(
@@ -21,7 +21,7 @@ export class EmailConfirmationController {
   ) {}
 
   @Public()
-  @Post('confirm')
+  @Post('confirm-email')
   async confirm(@Body() confirmationData: ConfirmUserTokenDto) {
     const token = await this.emailConfirmationService.checkToken(
       confirmationData.token,
