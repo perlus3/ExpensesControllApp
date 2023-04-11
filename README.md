@@ -1,2 +1,0 @@
-# ExpencesControllApp
-Projekt na zaliczenie
