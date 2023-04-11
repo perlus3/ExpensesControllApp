@@ -19,9 +19,6 @@ export class UsersEntity {
   @Column({ unique: true })
   email: string;
 
-  @Column({ default: false })
-  isEmailConfirmed: boolean;
-
   @Column()
   firstName: string;
 

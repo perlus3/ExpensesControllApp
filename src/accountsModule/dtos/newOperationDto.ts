@@ -6,7 +6,7 @@ import {
   IsString,
   Min,
 } from 'class-validator';
-import { OperationType } from 'types';
+import { OperationType } from 'src/types';
 import { CategoriesEntity } from '../../entities/categories.entity';
 
 export class NewOperationDto {

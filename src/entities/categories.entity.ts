@@ -7,7 +7,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { CashFlowEntity } from './cash-flow.entity';
-import { OperationType } from '../../types';
+import { OperationType } from '../types';
 
 @Entity()
 export class CategoriesEntity {

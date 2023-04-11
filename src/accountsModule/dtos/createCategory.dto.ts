@@ -1,5 +1,5 @@
 import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
-import { OperationType } from '../../../types';
+import { OperationType } from '../../types';
 
 export class CreateCategoryDto {
   @IsString()
