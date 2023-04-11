@@ -5,7 +5,7 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
-import { Currency } from 'types';
+import { Currency } from 'src/types';
 
 export class CreateNewAccountDto {
   @IsString()

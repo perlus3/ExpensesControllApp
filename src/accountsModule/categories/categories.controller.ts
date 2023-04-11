@@ -7,6 +7,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CategoriesEntity } from '../../entities/categories.entity';
@@ -16,6 +17,8 @@ import {
   CreateCategoryDto,
   UpdateCategoryDto,
 } from '../dtos/createCategory.dto';
+import { CashFlowService } from '../cashFlow/cashFlow.service';
+import { FilterOperationsDto } from '../dtos/filterOperations.dto';
 
 @Controller('categories')
 export class CategoriesController {
@@ -23,6 +26,7 @@ export class CategoriesController {
     @InjectRepository(CategoriesEntity)
     private categoriesEntity: Repository<CategoriesEntity>,
     private categoriesService: CategoriesService,
+    private cashFlowService: CashFlowService,
   ) {}
   @Post('/add')
   async newCategory(@Body() categoryData: CreateCategoryDto) {
@@ -71,5 +75,22 @@ export class CategoriesController {
         id: categoryId,
       },
     });
+  }
+  @Get('/all/:id')
+  async getAllOperationsByCategory(
+    @Query() filterDto: FilterOperationsDto,
+    @Param('id')
+    categoryId: string,
+  ) {
+    if (filterDto.startDate === '' && filterDto.endDate === '') {
+      return this.cashFlowService.getCategoryDetails(categoryId);
+    }
+
+    if (Object.keys(filterDto).length) {
+      return this.cashFlowService.getOperationsWithFilters(
+        categoryId,
+        filterDto,
+      );
+    }
   }
 }

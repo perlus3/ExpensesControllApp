@@ -7,7 +7,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { UsersEntity } from './users.entity';
-import { Currency } from '../../types';
+import { Currency } from '../types';
 
 @Entity()
 export class AccountsEntity {

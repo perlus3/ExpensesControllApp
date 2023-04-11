@@ -12,6 +12,7 @@ import { RefreshTokensEntity } from '../entities/refresh-tokens.entity';
 import { CategoriesEntity } from '../entities/categories.entity';
 import { CategoriesController } from './categories/categories.controller';
 import { CategoriesService } from './categories/categories.service';
+import { UserVerificationEntity } from '../entities/user-verification.entity';
 
 @Module({
   exports: [AccountsService, CashFlowService],
@@ -22,6 +23,7 @@ import { CategoriesService } from './categories/categories.service';
       UsersEntity,
       RefreshTokensEntity,
       CategoriesEntity,
+      UserVerificationEntity,
     ]),
   ],
   controllers: [AccountsController, CashFlowController, CategoriesController],

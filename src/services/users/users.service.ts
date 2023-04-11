@@ -10,11 +10,14 @@ import { UsersEntity } from '../../entities/users.entity';
 import { RegisterUserDto } from '../../dtos/registerUser.dto';
 import { compareMethod, hashMethod } from '../../helpers/password';
 import { RefreshTokensEntity } from '../../entities/refresh-tokens.entity';
+import { UserVerificationEntity } from '../../entities/user-verification.entity';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(UsersEntity) private users: Repository<UsersEntity>,
+    @InjectRepository(UserVerificationEntity)
+    private userVerification: Repository<UserVerificationEntity>,
     @InjectRepository(RefreshTokensEntity)
     private refreshTokens: Repository<RefreshTokensEntity>,
   ) {}
@@ -36,10 +39,12 @@ export class UsersService {
           HttpStatus.BAD_REQUEST,
         );
       }
-      throw new HttpException(
-        'Something went wrong',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      if (error.statusCode === 500) {
+        throw new HttpException(
+          'Something went wrong',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
     }
   }
   async getUserById(userId: string): Promise<any> {
@@ -80,13 +85,62 @@ export class UsersService {
       },
     });
 
+    const isVerified = await this.userVerification
+      .createQueryBuilder('user_verification_entity')
+      .leftJoinAndSelect('user_verification_entity.user', 'user')
+      .where('user.id = :id', { id: user.id })
+      .getOne();
+
     if (!user?.isActive || !user?.password) {
       return undefined;
     }
+
+    if (!isVerified.verified) {
+      throw new BadRequestException(
+        'Aby się zalogować musisz najpierw potwierdzić rejestracje na podanym adresie email!',
+      );
+    }
+
     if (await compareMethod(password, user.password)) {
       return user.getUser();
     }
     return undefined;
+  }
+
+  async markUserAsVerified(id: string) {
+    return this.userVerification.update(
+      { id },
+      {
+        verified: true,
+      },
+    );
+  }
+
+  async findOneByEmail(email: string) {
+    return await this.users.findOne({
+      where: {
+        email,
+      },
+    });
+  }
+
+  async findVerificationTokenByUserId(userId: string) {
+    return await this.userVerification.findOne({
+      where: {
+        user: {
+          id: userId,
+        },
+      },
+      relations: ['user'],
+    });
+  }
+
+  async findVerificationTokenById(row: Partial<UserVerificationEntity>) {
+    return await this.userVerification.findOne({
+      where: {
+        id: row.id,
+      },
+    });
   }
 
   async getUserIfRefreshTokenMatches(

@@ -9,7 +9,7 @@ import {
 import { UsersEntity } from './users.entity';
 import { AccountsEntity } from './accounts.entity';
 import { CategoriesEntity } from './categories.entity';
-import { OperationType } from 'types/operations/operations-entity';
+import { OperationType } from 'src/types/operations/operations-entity';
 @Entity()
 export class CashFlowEntity {
   @PrimaryGeneratedColumn('uuid')
