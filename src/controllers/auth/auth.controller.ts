@@ -21,6 +21,7 @@ import { RefreshTokensEntity } from '../../entities/refresh-tokens.entity';
 import { Repository } from 'typeorm';
 import JwtRefreshGuard from '../../helpers/auth/jwt.refreshGuard';
 import { AccountsService } from '../../accountsModule/accounts/accounts.service';
+import { EmailConfirmationService } from '../../emailConfirmation/emailConfirmation.service';
 
 @Controller('auth')
 export class AuthController {
@@ -30,21 +31,23 @@ export class AuthController {
     private accountsService: AccountsService,
     private usersService: UsersService,
     private authService: AuthService,
+    private emailConfirmationService: EmailConfirmationService,
   ) {}
-
-  /**
-   * przykładowy endpoint dla zwracania uwierzytelnionego użytkownika z requesta
-   */
-  @Get('me')
-  async getMyProfile(@Req() req: RequestWithUser) {
-    return this.usersService.getUserById(req.user.id);
-  }
 
   @Public()
   @Post('/register')
   async register(@Body() registerData: RegisterUserDto) {
-    return this.usersService.register(registerData);
-    //@Todo potwierdzenie emailem
+    const user = await this.usersService.register(registerData);
+    const findUser = await this.usersService.findOneByEmail(registerData.email);
+
+    if (findUser) {
+      await this.emailConfirmationService.sendVerificationLink(
+        registerData.email,
+        findUser.id,
+      );
+    }
+
+    return user;
   }
 
   @Public()

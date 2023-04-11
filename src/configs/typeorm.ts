@@ -6,6 +6,7 @@ import { AccountsEntity } from '../entities/accounts.entity';
 import { CashFlowEntity } from '../entities/cash-flow.entity';
 import { RefreshTokensEntity } from '../entities/refresh-tokens.entity';
 import { CategoriesEntity } from '../entities/categories.entity';
+import { UserVerificationEntity } from '../entities/user-verification.entity';
 
 const entities = [
   UsersEntity,
@@ -13,6 +14,7 @@ const entities = [
   CashFlowEntity,
   RefreshTokensEntity,
   CategoriesEntity,
+  UserVerificationEntity,
 ];
 
 export const dataSourceOptions: DataSourceOptions = {

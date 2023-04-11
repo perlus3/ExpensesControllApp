@@ -6,6 +6,7 @@ import { NewOperationDto, UpdateOperationDto } from '../dtos/newOperationDto';
 import { AccountsService } from '../accounts/accounts.service';
 import { AccountsEntity } from '../../entities/accounts.entity';
 import { CategoriesEntity } from '../../entities/categories.entity';
+import { FilterOperationsDto } from '../dtos/filterOperations.dto';
 
 @Injectable()
 export class CashFlowService {
@@ -103,8 +104,56 @@ export class CashFlowService {
       order: {
         createdAt: 'DESC',
       },
-      relations: ['byUserAccount'],
+      relations: ['byUserAccount', 'category'],
     });
+  }
+
+  async getCategoryDetails(categoryId: string) {
+    return await this.cashFlowEntity.find({
+      where: {
+        category: {
+          id: categoryId,
+        },
+      },
+      order: {
+        createdAt: 'DESC',
+      },
+      relations: ['category'],
+    });
+  }
+
+  async getOperationsWithFilters(
+    categoryId: string,
+    filterDto: FilterOperationsDto,
+  ) {
+    const { startDate, endDate } = filterDto;
+
+    const operations = await this.getCategoryDetails(categoryId);
+
+    const filteredOperations = operations.filter((el) => {
+      const createdAtDate = el.createdAt.toLocaleDateString('pl-PL');
+
+      if (startDate && !endDate) {
+        return (
+          new Date(createdAtDate.split('.').reverse().join('-')) >=
+          new Date(startDate.split('.').reverse().join('-'))
+        );
+      }
+      if (!startDate && endDate) {
+        return (
+          new Date(createdAtDate.split('.').reverse().join('-')) <=
+          new Date(endDate.split('.').reverse().join('-'))
+        );
+      }
+      return (
+        new Date(createdAtDate.split('.').reverse().join('-')) >=
+          new Date(startDate.split('.').reverse().join('-')) &&
+        new Date(createdAtDate.split('.').reverse().join('-')) <=
+          new Date(endDate.split('.').reverse().join('-'))
+      );
+    });
+
+    return filteredOperations;
   }
 
   async getOneOperation(operationId: string): Promise<CashFlowEntity> {

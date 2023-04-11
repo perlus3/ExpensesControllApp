@@ -111,18 +111,12 @@ export class CashFlowController {
     };
   }
   @Get('/all/:id')
-  async getSingleAccountOperations(
-    @Req() req: RequestWithUser,
-    @Param('id') accountId: string,
-  ) {
+  async getSingleAccountOperations(@Param('id') accountId: string) {
     return this.cashFlowService.getAllAccountOperations(accountId);
   }
 
   @Get('/:id')
-  async getSingleOperations(
-    @Req() req: RequestWithUser,
-    @Param('id') operationId: string,
-  ) {
+  async getSingleOperations(@Param('id') operationId: string) {
     return this.cashFlowService.getOneOperation(operationId);
   }
 
