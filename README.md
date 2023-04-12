@@ -13,13 +13,9 @@ Aplikacja ma pomagać w kontroli swoich finansów, coś jak budżet domowy.
 
 ## Wykorzystane technologie:
 ![MariaDB](https://img.shields.io/badge/MariaDB-003545?style=for-the-badge&logo=mariadb&logoColor=white)
-![Bootstrap](https://img.shields.io/badge/bootstrap-%23563D7C.svg?style=for-the-badge&logo=bootstrap&logoColor=white)
-
+![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
 ![JWT](https://img.shields.io/badge/JWT-black?style=for-the-badge&logo=JSON%20web%20tokens)
 ![NestJS](https://img.shields.io/badge/nestjs-%23E0234E.svg?style=for-the-badge&logo=nestjs&logoColor=white)
-![React Native](https://img.shields.io/badge/react_native-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)
-![React Router](https://img.shields.io/badge/React_Router-CA4245?style=for-the-badge&logo=react-router&logoColor=white)
-![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
 
 
 ## Jak zainstalować:
@@ -30,7 +26,7 @@ $ npm install
 
 ## Aby uruchomić aplikacje u siebie na localu:
 
-1. Utwórz plik .env i dodaj do niego następujące zmienne: 
+### 1. Utwórz plik .env i dodaj do niego następujące zmienne: 
 - APP_ENV = development
 -  APP_IP = localhost
 - APP_PORT = 3000
@@ -53,6 +49,14 @@ Następnie usunąć z app.module.ts MailsModule, EmailConfirmationService i Emai
 - JWT_EXPIRES_ACCESS = 24h
 - JWT_EXPIRES_REFRESH = 720h
 
-2. npm run start:dev
-3. Aplikacje frontendową odpalić jako drugą, również za pomocą npm run start:dev na porcie :3001
-4. Po uruchomieniu aplikacji frontendowej na adresie localhost:3001 działa aplikacja :)
+### 2. npm run start:dev
+### 3. Aplikacje frontendową odpalić jako drugą, również za pomocą npm run start:dev na porcie :3001
+### 4. Po uruchomieniu aplikacji frontendowej na adresie localhost:3001 działa aplikacja :)
+
+# To do:
+- Autoryzacja na refresh tokenie
+- Wrzucenie apki na serwer (niestety po wielu próbach i godzinach walki z networkManagerem poniosłem klęske, za każdym razem gdy udało sie ujażmić tą bestie i działało jak należy po chwili znowu sie rozsypywła aplikacja)
+- po wrzuceniu apki migracje na typeorm
+## Kontakt
+### W razie znalezienia jakiś bugów lub chęci współpracy prosze pisać na email podany poniżej
+perlegus@gmail.com
