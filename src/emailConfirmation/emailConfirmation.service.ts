@@ -25,7 +25,6 @@ export class EmailConfirmationService {
     const tokenInDb = await this.usersService.findVerificationTokenByUserId(id);
 
     const today = dayjs().toDate();
-    console.log(today);
 
     if (!tokenInDb || tokenInDb.expiresAt < today) {
       if (tokenInDb?.verified) {
