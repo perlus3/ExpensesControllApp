@@ -8,9 +8,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UsersEntity } from '../../entities/users.entity';
 import { RegisterUserDto } from '../../dtos/registerUser.dto';
-import { compareMethod, hashMethod } from '../../helpers/password';
 import { RefreshTokensEntity } from '../../entities/refresh-tokens.entity';
 import { UserVerificationEntity } from '../../entities/user-verification.entity';
+import { compareMethod, hashMethod } from 'src/helpers/password';
 
 @Injectable()
 export class UsersService {

@@ -8,6 +8,7 @@ async function bootstrap() {
   app.enableCors({
     origin: '*',
   });
+  app.setGlobalPrefix('/api');
 
   app.use(cookieParser());
   app.useGlobalPipes(
