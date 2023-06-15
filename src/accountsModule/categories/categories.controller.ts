@@ -82,8 +82,22 @@ export class CategoriesController {
     @Param('id')
     categoryId: string,
   ) {
-    if (filterDto.startDate === '' && filterDto.endDate === '') {
+    if (filterDto.month === '' && filterDto.year === '') {
       return this.cashFlowService.getCategoryDetails(categoryId);
+    }
+
+    if (filterDto.month === '') {
+      return this.cashFlowService.getOperationsWithFilters(
+        categoryId,
+        filterDto,
+      );
+    }
+
+    if (filterDto.year === '') {
+      return this.cashFlowService.getOperationsWithFilters(
+        categoryId,
+        filterDto,
+      );
     }
 
     if (Object.keys(filterDto).length) {

@@ -3,8 +3,8 @@ import { IsOptional, IsString } from 'class-validator';
 export class FilterOperationsDto {
   @IsString()
   @IsOptional()
-  startDate: string;
+  year: string;
   @IsString()
   @IsOptional()
-  endDate: string;
+  month: string;
 }

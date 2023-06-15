@@ -126,34 +126,26 @@ export class CashFlowService {
     categoryId: string,
     filterDto: FilterOperationsDto,
   ) {
-    const { startDate, endDate } = filterDto;
+    const { year, month } = filterDto;
 
     const operations = await this.getCategoryDetails(categoryId);
 
-    const filteredOperations = operations.filter((el) => {
-      const createdAtDate = el.createdAt.toLocaleDateString('pl-PL');
-
-      if (startDate && !endDate) {
-        return (
-          new Date(createdAtDate.split('.').reverse().join('-')) >=
-          new Date(startDate.split('.').reverse().join('-'))
-        );
+    const yearFilter = operations.filter((el) => {
+      if (+year === el.createdAt.getFullYear()) {
+        return el.createdAt.getFullYear();
       }
-      if (!startDate && endDate) {
-        return (
-          new Date(createdAtDate.split('.').reverse().join('-')) <=
-          new Date(endDate.split('.').reverse().join('-'))
-        );
-      }
-      return (
-        new Date(createdAtDate.split('.').reverse().join('-')) >=
-          new Date(startDate.split('.').reverse().join('-')) &&
-        new Date(createdAtDate.split('.').reverse().join('-')) <=
-          new Date(endDate.split('.').reverse().join('-'))
-      );
     });
 
-    return filteredOperations;
+    const fullFilter = operations.filter((el) => {
+      if (
+        +month === el.createdAt.getMonth() + 1 &&
+        +year === el.createdAt.getFullYear()
+      ) {
+        return el.createdAt.getMonth();
+      }
+    });
+
+    return month ? fullFilter : yearFilter;
   }
 
   async getOneOperation(operationId: string): Promise<CashFlowEntity> {
