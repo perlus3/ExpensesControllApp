@@ -86,14 +86,7 @@ export class CategoriesController {
       return this.cashFlowService.getCategoryDetails(categoryId);
     }
 
-    if (filterDto.month === '') {
-      return this.cashFlowService.getOperationsWithFilters(
-        categoryId,
-        filterDto,
-      );
-    }
-
-    if (filterDto.year === '') {
+    if (filterDto.month || filterDto.year === '') {
       return this.cashFlowService.getOperationsWithFilters(
         categoryId,
         filterDto,

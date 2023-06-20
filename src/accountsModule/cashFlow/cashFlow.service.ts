@@ -170,6 +170,7 @@ export class CashFlowService {
 
   async getCashFlowReport(userId: string) {
     const userOperations = await this.getAllUserOperations(userId);
+
     const totalUserIncome = userOperations
       .filter((el) => el.operationType === 'INCOME')
       .reduce((sum, el) => sum + Number(el.value), 0);
@@ -186,5 +187,34 @@ export class CashFlowService {
       totalUserExpenses,
       finalReport,
     };
+  }
+
+  async getCashFlowReportWithFilter(
+    userId: string,
+    filter: FilterOperationsDto,
+  ) {
+    const { year, month } = filter;
+
+    const userOperations = await this.getAllUserOperations(userId);
+
+    const totalExpensesWithFilter = userOperations
+      .filter(
+        (el) =>
+          el.operationType === 'EXPENSE' &&
+          +month === el.createdAt.getMonth() + 1 &&
+          +year === el.createdAt.getFullYear(),
+      )
+      .reduce((sum, el) => sum + Number(el.value), 0);
+
+    const totalIncomeWithFilter = userOperations
+      .filter(
+        (el) =>
+          el.operationType === 'INCOME' &&
+          +month === el.createdAt.getMonth() + 1 &&
+          +year === el.createdAt.getFullYear(),
+      )
+      .reduce((sum, el) => sum + Number(el.value), 0);
+
+    return { totalExpensesWithFilter, totalIncomeWithFilter };
   }
 }

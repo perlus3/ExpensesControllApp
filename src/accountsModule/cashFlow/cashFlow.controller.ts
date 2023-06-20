@@ -7,6 +7,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Req,
 } from '@nestjs/common';
 import { CashFlowService } from './cashFlow.service';
@@ -16,6 +17,7 @@ import { AccountsService } from '../accounts/accounts.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CashFlowEntity } from '../../entities/cash-flow.entity';
 import { Repository, UpdateResult } from 'typeorm';
+import { FilterOperationsDto } from '../dtos/filterOperations.dto';
 
 @Controller('operations')
 export class CashFlowController {
@@ -121,7 +123,16 @@ export class CashFlowController {
   }
 
   @Get('/total/report')
-  async getCashFlowReport(@Req() req: RequestWithUser) {
-    return this.cashFlowService.getCashFlowReport(req.user.id);
+  async getCashFlowReport(
+    @Req() req: RequestWithUser,
+    @Query() filter: FilterOperationsDto,
+  ) {
+    const report = await this.cashFlowService.getCashFlowReportWithFilter(
+      req.user.id,
+      filter,
+    );
+    const { totalIncomeWithFilter, totalExpensesWithFilter } = report;
+
+    return { income: totalIncomeWithFilter, expense: totalExpensesWithFilter };
   }
 }
