@@ -197,7 +197,7 @@ export class CashFlowService {
 
     const userOperations = await this.getAllUserOperations(userId);
 
-    const totalExpensesWithFilter = userOperations
+    const expenses = userOperations
       .filter(
         (el) =>
           el.operationType === 'EXPENSE' &&
@@ -206,7 +206,7 @@ export class CashFlowService {
       )
       .reduce((sum, el) => sum + Number(el.value), 0);
 
-    const totalIncomeWithFilter = userOperations
+    const income = userOperations
       .filter(
         (el) =>
           el.operationType === 'INCOME' &&
@@ -215,6 +215,28 @@ export class CashFlowService {
       )
       .reduce((sum, el) => sum + Number(el.value), 0);
 
-    return { totalExpensesWithFilter, totalIncomeWithFilter };
+    if (month === '') {
+      const expenses = userOperations
+        .filter(
+          (el) =>
+            el.operationType === 'EXPENSE' &&
+            +year === el.createdAt.getFullYear(),
+        )
+        .reduce((sum, el) => sum + Number(el.value), 0);
+
+      const income = userOperations
+        .filter(
+          (el) =>
+            el.operationType === 'INCOME' &&
+            +year === el.createdAt.getFullYear(),
+        )
+        .reduce((sum, el) => sum + Number(el.value), 0);
+      return { income, expenses };
+    }
+
+    return {
+      income,
+      expenses,
+    };
   }
 }

@@ -127,12 +127,9 @@ export class CashFlowController {
     @Req() req: RequestWithUser,
     @Query() filter: FilterOperationsDto,
   ) {
-    const report = await this.cashFlowService.getCashFlowReportWithFilter(
+    return this.cashFlowService.getCashFlowReportWithFilter(
       req.user.id,
       filter,
     );
-    const { totalIncomeWithFilter, totalExpensesWithFilter } = report;
-
-    return { income: totalIncomeWithFilter, expense: totalExpensesWithFilter };
   }
 }
