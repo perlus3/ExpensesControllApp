@@ -63,18 +63,18 @@ export class AccountsService {
       .where('user.id = :id', { id: userId })
       .getMany();
   }
-  async getAllOperations(userId: string): Promise<CashFlowEntity[]> {
+  async getAllAccountOperations(accId: string): Promise<CashFlowEntity[]> {
     return await this.cashFlowEntity.find({
       where: {
-        user: {
-          id: userId,
+        byUserAccount: {
+          id: accId,
         },
       },
-      relations: ['user'],
+      relations: ['byUserAccount'],
     });
   }
-  async getAccountValue(accountId: string, userId: string): Promise<number> {
-    const values = await this.getAllOperations(userId);
+  async getAccountValue(accountId: string): Promise<number> {
+    const values = await this.getAllAccountOperations(accountId);
     const totalValue = values.map((el) => {
       if (el.operationType === 'EXPENSE') {
         el.value = -el.value;

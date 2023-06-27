@@ -44,12 +44,8 @@ export class AccountsController {
   }
 
   @Get('/:id/value')
-  async getSingleAccountValue(
-    @Param('id') accountId: string,
-    @Req() req: RequestWithUser,
-  ) {
-    const userId = req.user.id;
-    return this.accountsService.getAccountValue(accountId, userId);
+  async getSingleAccountValue(@Param('id') accountId: string) {
+    return this.accountsService.getAccountValue(accountId);
   }
 
   @Post('/add')

@@ -82,7 +82,7 @@ export class CategoriesController {
     @Param('id')
     categoryId: string,
   ) {
-    if (filterDto.month === '' && filterDto.year === '') {
+    if (filterDto.month === '') {
       return this.cashFlowService.getCategoryDetails(categoryId);
     }
 

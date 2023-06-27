@@ -81,10 +81,7 @@ export class CashFlowController {
       req.user.id,
     );
 
-    const value = await this.accountService.getAccountValue(
-      account.id,
-      req.user.id,
-    );
+    const value = await this.accountService.getAccountValue(account.id);
 
     if (operation.operationType === 'EXPENSE') {
       await this.accountService.updateAccount(account.id, {
