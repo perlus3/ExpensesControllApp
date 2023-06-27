@@ -52,7 +52,6 @@ export class AccountsService {
     if (account.user.id !== userId) {
       throw new BadRequestException('TO NIE TWOJE KONTO GAGATKU');
     }
-
     return account;
   }
 

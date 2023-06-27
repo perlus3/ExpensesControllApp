@@ -38,5 +38,5 @@ export class UpdateOperationDto {
   value: number;
   @IsString()
   @IsOptional()
-  description?: string;
+  operationType: OperationType;
 }

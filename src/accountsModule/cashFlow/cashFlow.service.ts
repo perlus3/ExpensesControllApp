@@ -85,6 +85,7 @@ export class CashFlowService {
       .set({
         name: body.name,
         value: body.value,
+        operationType: body.operationType,
       })
       .where('id = :id', { id: operationId })
       .execute();
