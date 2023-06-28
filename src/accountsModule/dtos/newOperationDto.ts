@@ -38,5 +38,5 @@ export class UpdateOperationDto {
   value: number;
   @IsString()
   @IsOptional()
-  operationType: OperationType;
+  categoryId: string;
 }

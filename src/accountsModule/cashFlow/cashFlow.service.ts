@@ -79,13 +79,19 @@ export class CashFlowService {
     operationId: string,
     body: UpdateOperationDto,
   ): Promise<UpdateResult> {
+    const category = await this.categoriesEntity.findOne({
+      where: {
+        id: body.categoryId,
+      },
+    });
     return this.cashFlowEntity
       .createQueryBuilder()
       .update(CashFlowEntity)
       .set({
         name: body.name,
         value: body.value,
-        operationType: body.operationType,
+        operationType: category.type,
+        category,
       })
       .where('id = :id', { id: operationId })
       .execute();
