@@ -156,9 +156,7 @@ export class UsersService {
           },
           isActive: true,
         },
-        relations: ['user'],
       });
-
       if (refreshToken === token.refreshToken) {
         return user;
       }

@@ -38,9 +38,27 @@ export class AuthService {
     ];
   }
 
-  async removeRefreshTokenFromDb(userId: string): Promise<void> {
+  async removeTokenByToken(token: string): Promise<boolean> {
+    const tokenFromDb = await this.refreshTokens.findOne({
+      where: {
+        refreshToken: token,
+      },
+    });
+    if (tokenFromDb) {
+      const remove = await this.refreshTokens.remove(tokenFromDb);
+      if (remove) {
+        return true;
+      }
+    }
+  }
+
+  async removeRefreshTokenFromDb(userId: string): Promise<boolean> {
     const tokenInDb = await this.getRefreshTokenFromDb(userId);
-    await this.refreshTokens.remove(tokenInDb);
+    if (tokenInDb) {
+      await this.refreshTokens.remove(tokenInDb);
+      return true;
+    }
+    return false;
   }
 
   async validateSessionToken(
@@ -106,24 +124,22 @@ export class AuthService {
     refreshToken: string,
   ): Promise<string> {
     try {
-      const decodedToken = this.jwtService.verify(refreshToken);
+      if (refreshToken) {
+        const decodedToken = this.jwtService.verify(refreshToken);
+        const dbToken = await this.getRefreshTokenFromDb(decodedToken.sub);
 
-      const dbToken = await this.getRefreshTokenFromDb(decodedToken.sub);
+        if (dbToken.refreshToken !== refreshToken) {
+          return undefined;
+        }
 
-      if (
-        !dbToken.user ||
-        !dbToken.user.isActive ||
-        dbToken.user.id !== decodedToken.sub
-      ) {
-        return undefined;
+        const { accessToken } = await this.createAccessAndRefreshTokens(
+          dbToken.user,
+        );
+        return accessToken;
       }
-
-      const { accessToken } = await this.createAccessAndRefreshTokens(
-        dbToken.user,
-      );
-      return accessToken;
+      return undefined;
     } catch (e) {
-      throw new BadRequestException('Coś poszło nie tak, zaloguj się ponownie');
+      throw new BadRequestException('Coś poszło nie tak przepraszamy.');
     }
   }
 
@@ -148,7 +164,6 @@ export class AuthService {
         user: {
           id: userId,
         },
-        isActive: true,
       },
       relations: ['user'],
     });
@@ -159,7 +174,7 @@ export class AuthService {
 
     const today = dayjs().toDate();
 
-    if (!token || token.expiresIn < today) {
+    if (token?.expiresIn < today) {
       console.log('token deleted');
       await this.refreshTokens.remove(token);
     }

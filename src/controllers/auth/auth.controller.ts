@@ -6,7 +6,6 @@ import {
   Req,
   Res,
   Get,
-  UseGuards,
   HttpCode,
 } from '@nestjs/common';
 import { RegisterUserDto } from '../../dtos/registerUser.dto';
@@ -19,7 +18,6 @@ import { RequestWithUser } from '../../helpers/auth/auth.interface';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RefreshTokensEntity } from '../../entities/refresh-tokens.entity';
 import { Repository } from 'typeorm';
-import JwtRefreshGuard from '../../helpers/auth/jwt.refreshGuard';
 import { AccountsService } from '../../accountsModule/accounts/accounts.service';
 import { EmailConfirmationService } from '../../emailConfirmation/emailConfirmation.service';
 
@@ -66,10 +64,7 @@ export class AuthController {
     const activeRefreshTokenFromDb =
       await this.authService.getRefreshTokenFromDb(validateUser.id);
 
-    if (
-      !activeRefreshTokenFromDb ||
-      activeRefreshTokenFromDb.isActive === false
-    ) {
+    if (!activeRefreshTokenFromDb) {
       await this.authService.saveRefreshTokenIntoDb(
         validateUser.id,
         tokens.refreshToken,
@@ -77,18 +72,17 @@ export class AuthController {
     }
 
     response.cookie('AccessToken', tokens.accessToken, {
-      httpOnly: true,
-      maxAge: 1000 * 60 * 10,
+      maxAge: 1000 * 60 * 5,
+      domain: 'localhost',
     });
     response.cookie('RefreshToken', tokens.refreshToken, {
       httpOnly: true,
-      maxAge: 1000 * 60 * 60 * 720,
+      maxAge: 1000 * 60 * 60 * 24,
+      domain: 'localhost',
     });
 
     response.json({
-      accessToken: tokens.accessToken,
-      refreshToken: tokens.refreshToken,
-      user: validateUser,
+      userId: validateUser.id,
     });
   }
 
@@ -97,31 +91,34 @@ export class AuthController {
    *  jeśli refreshTokenCookie istnieje i
    *  matchuje do tego w bazie danych
    */
-  @UseGuards(JwtRefreshGuard)
+
   @Get('refresh')
   async refresh(@Req() request: RequestWithUser) {
-    const AccessToken =
-      await this.authService.createAccessTokenFromRefreshToken(
-        request.cookies.RefreshToken,
-      );
+    if (request.cookies.RefreshToken) {
+      const AccessToken =
+        await this.authService.createAccessTokenFromRefreshToken(
+          request.cookies.RefreshToken,
+        );
 
-    request.res.cookie('AccessToken', AccessToken, {
-      httpOnly: true,
-      maxAge: 1000 * 60 * 10,
-    });
-
-    request.res.setHeader('AccessToken', AccessToken);
-    return AccessToken;
+      const response = request.res;
+      response.cookie('AccessToken', AccessToken, {
+        maxAge: 1000 * 60 * 5,
+      });
+      return { token: AccessToken };
+    }
+    return { message: 'RefreshToken Expired' };
   }
 
   /**
    * /log-out usuwa ciasteczka co powoduje wyrzucenie użytkownika z sesji
    */
+  @Public()
   @Post('log-out')
   @HttpCode(200)
   async logOut(@Req() req: RequestWithUser) {
-    await this.authService.removeRefreshTokenFromDb(req.user.id);
-    req.res.setHeader('Set-Cookie', this.authService.getCookiesForLogOut());
-    return 'WYLOGOWANO';
+    req.res.clearCookie('AccessToken');
+    req.res.clearCookie('RefreshToken');
+
+    return this.authService.removeTokenByToken(req.cookies.RefreshToken);
   }
 }

@@ -16,6 +16,7 @@ export const config = {
   TYPEORM_DATABASE: process.env['TYPEORM_DATABASE'],
   TYPEORM_PORT: process.env['TYPEORM_PORT'],
   TYPEORM_SYNC: process.env['TYPEORM_SYNC'] === 'true',
+  APP_DOMAIN: process.env['APP_DOMAIN'],
 
   MAIL_HOST: process.env['MAIL_HOST'],
   MAIL_USER: process.env['MAIL_USER'],

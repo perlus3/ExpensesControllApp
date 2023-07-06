@@ -52,8 +52,6 @@ export class CashFlowController {
       ...body,
     });
 
-    console.log(res.affected);
-
     const account = await this.accountService.findOneAccountById(
       operation.byUserAccount.id,
       req.user.id,
