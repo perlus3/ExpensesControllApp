@@ -18,7 +18,7 @@ const TEMPLATE_DIR = __dirname + '/templates/';
         },
       },
       defaults: {
-        from: '"No Reply" <mailbox.expenseapp@gmail.com>',
+        from: '"ExpenseApp Team" <kamil@perlegus.pl>',
       },
       template: {
         dir: TEMPLATE_DIR,

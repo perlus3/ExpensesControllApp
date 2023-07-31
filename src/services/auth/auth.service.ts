@@ -125,7 +125,9 @@ export class AuthService {
   ): Promise<string> {
     try {
       if (refreshToken) {
-        const decodedToken = this.jwtService.verify(refreshToken);
+        const decodedToken = this.jwtService.verify(refreshToken, {
+          secret: this.getSecretKeyFromEnv(),
+        });
         const dbToken = await this.getRefreshTokenFromDb(decodedToken.sub);
 
         if (dbToken.refreshToken !== refreshToken) {

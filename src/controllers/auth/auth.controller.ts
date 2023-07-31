@@ -45,7 +45,9 @@ export class AuthController {
       );
     }
 
-    return user;
+    const { id, email } = user;
+
+    return { id, email };
   }
 
   @Public()
@@ -57,7 +59,7 @@ export class AuthController {
     );
 
     if (!validateUser) {
-      throw new UnauthorizedException('invalid credentials');
+      throw new UnauthorizedException('Niepoprawne dane logowania!');
     }
     const tokens = this.authService.createAccessAndRefreshTokens(validateUser);
 
@@ -77,7 +79,7 @@ export class AuthController {
     });
     response.cookie('RefreshToken', tokens.refreshToken, {
       httpOnly: true,
-      maxAge: 1000 * 60 * 60 * 24,
+      maxAge: 1000 * 60 * 60 * 72,
       domain: 'localhost',
     });
 
@@ -94,6 +96,7 @@ export class AuthController {
 
   @Get('refresh')
   async refresh(@Req() request: RequestWithUser) {
+    console.log('refresh');
     if (request.cookies.RefreshToken) {
       const AccessToken =
         await this.authService.createAccessTokenFromRefreshToken(

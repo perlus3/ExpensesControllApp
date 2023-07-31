@@ -4,6 +4,7 @@ import * as dayjs from 'dayjs';
 
 export enum MailTemplate {
   EmailConfirmation = 'email-confirmation',
+  ResetPassword = 'reset-password',
 }
 
 @Injectable()

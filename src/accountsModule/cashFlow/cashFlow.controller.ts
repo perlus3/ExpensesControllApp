@@ -57,8 +57,9 @@ export class CashFlowController {
       req.user.id,
     );
 
-    const totalValue = await this.cashFlowService.getCashFlowReport(
+    const totalValue = await this.cashFlowService.getAccountCashFlowReport(
       req.user.id,
+      account.id,
     );
 
     const { finalReport } = totalValue;
@@ -119,14 +120,16 @@ export class CashFlowController {
     return this.cashFlowService.getOneOperation(operationId);
   }
 
-  @Get('/total/report')
+  @Get(':accountId/total/report')
   async getCashFlowReport(
     @Req() req: RequestWithUser,
     @Query() filter: FilterOperationsDto,
+    @Param('accountId') id: string,
   ) {
     return this.cashFlowService.getCashFlowReportWithFilter(
       req.user.id,
       filter,
+      id,
     );
   }
 }

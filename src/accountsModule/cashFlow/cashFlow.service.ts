@@ -163,20 +163,28 @@ export class CashFlowService {
       relations: ['byUserAccount', 'category'],
     });
   }
-
-  async getAllUserOperations(userId: string): Promise<CashFlowEntity[]> {
+  async getAllUserOperationsByAccountId(
+    userId: string,
+    accId: string,
+  ): Promise<CashFlowEntity[]> {
     return await this.cashFlowEntity.find({
       where: {
         user: {
           id: userId,
         },
+        byUserAccount: {
+          id: accId,
+        },
       },
-      relations: ['user'],
+      relations: ['user', 'byUserAccount'],
     });
   }
 
-  async getCashFlowReport(userId: string) {
-    const userOperations = await this.getAllUserOperations(userId);
+  async getAccountCashFlowReport(userId: string, accountId: string) {
+    const userOperations = await this.getAllUserOperationsByAccountId(
+      userId,
+      accountId,
+    );
 
     const totalUserIncome = userOperations
       .filter((el) => el.operationType === 'INCOME')
@@ -199,10 +207,14 @@ export class CashFlowService {
   async getCashFlowReportWithFilter(
     userId: string,
     filter: FilterOperationsDto,
+    accId: string,
   ) {
     const { year, month } = filter;
 
-    const userOperations = await this.getAllUserOperations(userId);
+    const userOperations = await this.getAllUserOperationsByAccountId(
+      userId,
+      accId,
+    );
 
     const expenses = userOperations
       .filter(

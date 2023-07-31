@@ -8,6 +8,7 @@ import { UserVerificationEntity } from '../entities/user-verification.entity';
 import { UsersEntity } from '../entities/users.entity';
 import { AuthService } from '../services/auth/auth.service';
 import { UsersService } from '../services/users/users.service';
+import { config } from '../configs/config';
 
 @Injectable()
 export class EmailConfirmationService {
@@ -20,29 +21,59 @@ export class EmailConfirmationService {
     private readonly usersService: UsersService,
   ) {}
 
+  async validateToken(token: string) {
+    const tokenInDb = await this.userVerification.findOne({
+      where: {
+        id: token,
+      },
+    });
+    if (!tokenInDb) {
+      throw new BadRequestException('Błąd autoryzacji');
+    }
+  }
+
+  async sendSetNewPasswordEmail(email: string) {
+    const user = await this.usersService.findOneByEmail(email);
+    if (!user) {
+      throw new BadRequestException('Taki użytkownik nie istnieje!');
+    }
+    const tokenInDb = await this.usersService.findVerificationTokenByUserId(
+      user.id,
+    );
+
+    const subject = 'Reset hasła ExpenseApp';
+    const url = `${config.APP_DOMAIN}/reset-password/${user.id}/${tokenInDb.id}`;
+    await this.emailService.sendMail(
+      email,
+      subject,
+      MailTemplate.ResetPassword,
+      {
+        email,
+        confirmUrl: url,
+      },
+    );
+  }
+
   async sendVerificationLink(email: string, id: string) {
     const token: string = randomUUID();
     const tokenInDb = await this.usersService.findVerificationTokenByUserId(id);
-
     const today = dayjs().toDate();
 
-    if (!tokenInDb || tokenInDb.expiresAt < today) {
-      if (tokenInDb?.verified) {
-        throw new BadRequestException('User is already confirmed');
-      }
-      const user = await this.usersService.findOneByEmail(email);
+    if (!tokenInDb || tokenInDb?.expiresAt < today) {
+      const expTime = dayjs().add(2, 'h').toDate();
+      const user = await this.users.findOne({
+        where: {
+          id,
+        },
+      });
 
-      if (user) {
-        const { id } = user;
-        const expTime = dayjs().add(2, 'h').toDate();
+      await this.userVerification.save({
+        id: token,
+        user,
+        expiresAt: expTime,
+      });
 
-        await this.userVerification.save({
-          id: token,
-          user: id,
-          expiresAt: expTime,
-        });
-      }
-      const url = `localhost:3001/email/confirm-email/${token}`;
+      const url = `${config.APP_DOMAIN}/email/confirm-email/${token}`;
       const subject = 'User Email confirmation';
 
       return this.emailService.sendMail(
@@ -50,42 +81,36 @@ export class EmailConfirmationService {
         subject,
         MailTemplate.EmailConfirmation,
         {
-          userName: user.firstName,
-          userLastName: user.lastName,
+          email,
           confirmUrl: url,
         },
       );
     }
   }
-
-  async checkToken(id: string) {
+  async checkToken(tokenId: string) {
     const token = await this.userVerification.findOne({
       where: {
-        id,
+        id: tokenId,
       },
+      relations: ['user'],
     });
 
     if (!token) {
       throw new BadRequestException('Bad token');
     }
-
-    return token;
-  }
-
-  async verifyUser(row: Partial<UserVerificationEntity>) {
-    const token = await this.usersService.findVerificationTokenById(row);
-
     const today = dayjs().toDate();
+    const { user } = token;
 
-    if (!token || token.expiresAt < today) {
-      throw new BadRequestException('Link aktywacyjny wygasł!');
+    if (token.expiresAt < today) {
+      await this.usersService.deleteUserAccount(user.id);
+      throw new BadRequestException(
+        'Link aktywacyjny wygasł zarejestruj się ponownie!',
+      );
     }
 
     if (token?.verified) {
-      throw new BadRequestException('User is already confirmed');
+      throw new BadRequestException('Konto zostało już potwierdzone!');
     }
     await this.usersService.markUserAsVerified(token.id);
-
-    return token;
   }
 }

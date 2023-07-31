@@ -17,12 +17,16 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
   private static extractJWT(req: Request): string | null {
-    if (
-      req.cookies &&
-      'AccessToken' in req.cookies &&
-      req.cookies.AccessToken.length > 0
-    ) {
-      return req.cookies.AccessToken;
+    if (req.cookies) {
+      if ('AccessToken' in req.cookies && req.cookies.AccessToken.length > 0) {
+        return req.cookies.AccessToken;
+      }
+      if (
+        'RefreshToken' in req.cookies &&
+        req.cookies.RefreshToken.length > 0
+      ) {
+        return req.cookies.RefreshToken;
+      }
     }
     return null;
   }
@@ -36,7 +40,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (!refreshToken && accessToken) {
       return this.authService.validateSessionToken(payload);
     }
-    if (!tokenFromDb || !refreshToken) {
+    if (!tokenFromDb) {
       return null;
     }
     if (tokenFromDb && refreshToken) {

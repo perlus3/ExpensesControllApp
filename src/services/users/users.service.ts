@@ -47,6 +47,12 @@ export class UsersService {
       }
     }
   }
+
+  async setNewPassword(password: string, userId: string) {
+    await this.getUserById(userId);
+    await this.users.update(userId, { password: await hashMethod(password) });
+  }
+
   async getUserById(userId: string): Promise<any> {
     const userAccounts = await this.users
       .createQueryBuilder('user')
@@ -69,7 +75,7 @@ export class UsersService {
       };
     }
     throw new HttpException(
-      'User with this id does not exist',
+      'User o podanym id nie istnieje!',
       HttpStatus.NOT_FOUND,
     );
   }
@@ -79,31 +85,34 @@ export class UsersService {
     password: string,
   ): Promise<UsersEntity | undefined> {
     const user = await this.users.findOne({
-      select: ['id', 'login', 'firstName', 'lastName', 'password', 'isActive'],
+      select: ['id', 'login', 'password', 'isActive'],
       where: {
         login,
       },
     });
 
-    const isVerified = await this.userVerification
-      .createQueryBuilder('user_verification_entity')
-      .leftJoinAndSelect('user_verification_entity.user', 'user')
-      .where('user.id = :id', { id: user.id })
-      .getOne();
+    if (user) {
+      const isVerified = await this.userVerification
+        .createQueryBuilder('user_verification_entity')
+        .leftJoinAndSelect('user_verification_entity.user', 'user')
+        .where('user.id = :id', { id: user.id })
+        .getOne();
 
-    if (!user?.isActive || !user?.password) {
-      return undefined;
+      if (!user?.isActive || !user?.password) {
+        return undefined;
+      }
+
+      if (!isVerified.verified) {
+        throw new BadRequestException(
+          'Aby się zalogować musisz najpierw potwierdzić rejestracje na podanym adresie email!',
+        );
+      }
+
+      if (await compareMethod(password, user.password)) {
+        return user.getUser();
+      }
     }
 
-    if (!isVerified.verified) {
-      throw new BadRequestException(
-        'Aby się zalogować musisz najpierw potwierdzić rejestracje na podanym adresie email!',
-      );
-    }
-
-    if (await compareMethod(password, user.password)) {
-      return user.getUser();
-    }
     return undefined;
   }
 
@@ -125,7 +134,7 @@ export class UsersService {
   }
 
   async findVerificationTokenByUserId(userId: string) {
-    return await this.userVerification.findOne({
+    return this.userVerification.findOne({
       where: {
         user: {
           id: userId,
@@ -135,33 +144,12 @@ export class UsersService {
     });
   }
 
-  async findVerificationTokenById(row: Partial<UserVerificationEntity>) {
-    return await this.userVerification.findOne({
-      where: {
-        id: row.id,
-      },
-    });
-  }
-
-  async getUserIfRefreshTokenMatches(
-    refreshToken: string,
-    userId: string,
-  ): Promise<UsersEntity> {
-    try {
-      const user = await this.getUserById(userId);
-      const token = await this.refreshTokens.findOne({
-        where: {
-          user: {
-            id: userId,
-          },
-          isActive: true,
-        },
-      });
-      if (refreshToken === token.refreshToken) {
-        return user;
-      }
-    } catch (e) {
-      throw new BadRequestException('Błąd serwera, zaloguj się ponownie!');
-    }
+  async deleteUserAccount(userId: string) {
+    return this.users
+      .createQueryBuilder('users_entity')
+      .delete()
+      .from(UsersEntity)
+      .where('id = :id', { id: userId })
+      .execute();
   }
 }

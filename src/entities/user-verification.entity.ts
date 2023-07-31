@@ -17,7 +17,7 @@ export class UserVerificationEntity {
     onDelete: 'CASCADE',
   })
   @JoinColumn()
-  user: UsersEntity | string;
+  user: UsersEntity;
 
   @CreateDateColumn()
   createdAt: Date;
