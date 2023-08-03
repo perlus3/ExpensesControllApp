@@ -138,17 +138,17 @@ export class CashFlowService {
     const operations = await this.getCategoryDetails(categoryId);
 
     const yearFilter = operations.filter((el) => {
-      if (+year === el.createdAt.getFullYear()) {
-        return el.createdAt.getFullYear();
+      if (+year === el.updatedAt.getFullYear()) {
+        return el.updatedAt.getFullYear();
       }
     });
 
     const fullFilter = operations.filter((el) => {
       if (
-        +month === el.createdAt.getMonth() + 1 &&
-        +year === el.createdAt.getFullYear()
+        +month === el.updatedAt.getMonth() + 1 &&
+        +year === el.updatedAt.getFullYear()
       ) {
-        return el.createdAt.getMonth();
+        return el.updatedAt.getMonth();
       }
     });
 
@@ -220,8 +220,8 @@ export class CashFlowService {
       .filter(
         (el) =>
           el.operationType === 'EXPENSE' &&
-          +month === el.createdAt.getMonth() + 1 &&
-          +year === el.createdAt.getFullYear(),
+          +month === el.updatedAt.getMonth() + 1 &&
+          +year === el.updatedAt.getFullYear(),
       )
       .reduce((sum, el) => sum + Number(el.value), 0);
 
@@ -229,8 +229,8 @@ export class CashFlowService {
       .filter(
         (el) =>
           el.operationType === 'INCOME' &&
-          +month === el.createdAt.getMonth() + 1 &&
-          +year === el.createdAt.getFullYear(),
+          +month === el.updatedAt.getMonth() + 1 &&
+          +year === el.updatedAt.getFullYear(),
       )
       .reduce((sum, el) => sum + Number(el.value), 0);
 
@@ -239,15 +239,14 @@ export class CashFlowService {
         .filter(
           (el) =>
             el.operationType === 'EXPENSE' &&
-            +year === el.createdAt.getFullYear(),
+            +year === el.updatedAt.getFullYear(),
         )
         .reduce((sum, el) => sum + Number(el.value), 0);
-
       const income = userOperations
         .filter(
           (el) =>
             el.operationType === 'INCOME' &&
-            +year === el.createdAt.getFullYear(),
+            +year === el.updatedAt.getFullYear(),
         )
         .reduce((sum, el) => sum + Number(el.value), 0);
       return { income, expenses };
